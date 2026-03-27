@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash · Law Repository</title>
+    <!-- Professional font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; background: #FCFAFA; }
+        .nav-link { position: relative; color: #4B5563; transition: color 0.2s; }
+        .nav-link:hover { color: #6F1A1F; }
+        .nav-link.active { color: #6F1A1F; font-weight: 500; }
+        .nav-link.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -6px; 
+            left: 0; 
+            width: 100%; 
+            height: 2px; 
+            background: #6F1A1F; 
+            border-radius: 2px;
+        }
+        .policy-card { transition: all 0.2s ease; border: 1px solid #EDE4E4; }
+        .policy-card:hover { border-color: #C5B0B0; box-shadow: 0 8px 20px -8px rgba(111,26,31,0.12); }
+        .category-badge { background: #F1E4E5; color: #6F1A1F; padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 500; white-space: nowrap; }
+        .severity-badge { background: #EDE4E4; color: #4B4B4B; padding: 0.25rem 0.75rem; border-radius: 2rem; font-size: 0.7rem; font-weight: 500; }
+        .filter-btn { padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.9rem; font-weight: 500; transition: all 0.15s; border: 1px solid transparent; }
+        .filter-btn.active { background: #6F1A1F; color: white; }
+        .filter-btn:not(.active) { background: white; border-color: #E0D5D5; color: #4B4B4B; }
+        .filter-btn:not(.active):hover { border-color: #6F1A1F; color: #6F1A1F; }
+        .search-box { border: 1px solid #E0D5D5; border-radius: 2rem; padding: 0.6rem 1.5rem; width: 100%; transition: all 0.15s; }
+        .search-box:focus { outline: none; border-color: #6F1A1F; box-shadow: 0 0 0 3px rgba(111,26,31,0.1); }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="fixed top-0 w-full bg-white/90 backdrop-blur-sm border-b border-[#EDE4E4] z-50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+
+                <nav class="hidden md:flex items-center gap-9 text-sm font-medium">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/report.html" class="nav-link">Analyze Incident</a>
+                    <a href="/law-repository" class="nav-link active">Law repository</a>
+                </nav>
+
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="/login.html" class="text-sm font-medium text-[#4B5563] hover:text-up px-4 py-2 transition-colors">Log in</a>
+                    <a href="/register.html" class="bg-up text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-up-light transition-colors">Register</a>
+                </div>
+
+                <button class="md:hidden text-[#4B5563] p-2" id="menuBtn">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div class="md:hidden hidden bg-white border-t border-[#EDE4E4] py-3 px-5" id="mobileMenu">
+            <div class="flex flex-col space-y-3">
+                <a href="/" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-home w-5"></i>Home</a>
+                <a href="/report.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-file w-5 text-[#9CA3AF]"></i>Analyze Incident</a>
+                <a href="/law-repository" class="py-2 text-up font-medium flex items-center gap-3"><i class="fas fa-gavel w-5"></i>Law repository</a>
+                <div class="border-t border-[#EDE4E4] pt-3 flex flex-col gap-2">
+                    <a href="/login.html" class="w-full text-center py-2.5 border border-[#D0C5C5] rounded-lg text-[#4B5563]">Log in</a>
+                    <a href="/register.html" class="w-full text-center py-2.5 bg-up text-white rounded-lg">Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-24 pb-16">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <!-- Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold text-[#2A2424] tracking-tight">Law Repository</h1>
+                <p class="text-[#655A5A] mt-2 text-base">Search and browse policies, laws, and regulations relevant to UPLB.</p>
+            </div>
+
+            <!-- Search and filters -->
+            <div class="bg-white rounded-xl border border-[#EDE4E4] p-5 mb-8">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#9A8A8A] text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="Search by keyword, policy ID, or title..." class="search-box pl-10">
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <select id="categoryFilter" class="border border-[#E0D5D5] rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:border-up min-w-[180px]">
+                            <option value="all">All categories</option>
+                            <option value="admission">Admission</option>
+                            <option value="academic_supervision">Academic Supervision</option>
+                            <option value="examination">Examination</option>
+                            <option value="thesis_dissertation">Thesis/Dissertation</option>
+                            <option value="residency">Residency</option>
+                            <option value="registration">Registration</option>
+                            <option value="student_status">Student Status</option>
+                            <option value="graduation">Graduation</option>
+                            <option value="faculty_qualification">Faculty Qualification</option>
+                            <option value="academic_credit">Academic Credit</option>
+                            <option value="sexual_harassment">Sexual Harassment</option>
+                            <option value="penalties">Penalties</option>
+                            <option value="institutional_duties">Institutional Duties</option>
+                            <option value="violence_against_women">VAWC</option>
+                            <option value="classification">Classification</option>
+                            <option value="procedures">Procedures</option>
+                            <option value="liability">Liability</option>
+                            <option value="legal_remedies">Legal Remedies</option>
+                            <option value="support_services">Support Services</option>
+                            <option value="special_cases">Special Cases</option>
+                            <option value="coverage">Coverage</option>
+                            <option value="violence_types">Violence Types</option>
+                            <option value="jurisdiction">Jurisdiction</option>
+                            <option value="remedies">Remedies</option>
+                            <option value="separation">Separation</option>
+                        </select>
+                        <select id="legalBasisFilter" class="border border-[#E0D5D5] rounded-lg px-4 py-2 text-sm bg-white focus:outline-none focus:border-up min-w-[160px]">
+                            <option value="all">All laws</option>
+                            <option value="RA 11313">RA 11313 (Safe Spaces Act)</option>
+                            <option value="RA 7877">RA 7877 (Anti-Sexual Harassment)</option>
+                            <option value="RA 9262">RA 9262 (VAWC)</option>
+                            <option value="CSC">CSC Rules</option>
+                            <option value="2017 RACCS">2017 RACCS</option>
+                            <option value="DOLE">DOLE</option>
+                            <option value="Multiple">Multiple laws</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results -->
+            <div class="bg-white rounded-xl border border-[#EDE4E4] p-6">
+                <div class="flex justify-between items-center mb-5">
+                    <h2 class="font-semibold text-lg" id="resultCount">Showing <span id="visibleCount">0</span> policies</h2>
+                    <button id="clearFilters" class="text-sm text-up hover:underline flex items-center gap-1">
+                        <i class="fas fa-times text-xs"></i> Clear filters
+                    </button>
+                </div>
+
+                <!-- Policy list container -->
+                <div id="policyList" class="space-y-4">
+                    <!-- JS will populate -->
+                </div>
+
+                                <!-- Pagination -->
+                <div id="paginationContainer" class="hidden mt-8 flex items-center justify-between border-t border-[#EDE4E4] pt-6">
+                    <button id="prevPage" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#4B5563] bg-white border border-[#E0D5D5] rounded-lg hover:border-up hover:text-up transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-chevron-left text-xs"></i>
+                        Previous
+                    </button>
+                    <span id="pageInfo" class="text-sm text-[#655A5A]">Page 1 of 1</span>
+                    <button id="nextPage" class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-[#4B5563] bg-white border border-[#E0D5D5] rounded-lg hover:border-up hover:text-up transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                        Next
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+
+                <!-- No results -->
+                <div id="noResults" class="hidden text-center py-12 text-[#9A8A8A]">
+                    <i class="fas fa-search text-4xl mb-3 opacity-40"></i>
+                    <p>No policies match your filters</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-[#EDE4E4] py-12">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="grid md:grid-cols-4 gap-8 text-sm">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-7 h-7 rounded bg-up flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-up">UPLB Oash</span>
+                    </div>
+                    <p class="text-[#706565] text-xs leading-relaxed">Office of Student Counselling · UPLB</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Pages</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><a href="/" class="hover:text-up">Home</a></li>
+                        <li><a href="/law-repository.html" class="hover:text-up">Law repository</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Policies</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li>Privacy notice</li>
+                        <li>Terms of use</li>
+                        <li>UP Data protection</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Contact</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><i class="fas fa-phone mr-2 text-up/60 text-xs"></i>+63 49 501 1844</li>
+                        <li><i class="fas fa-envelope mr-2 text-up/60 text-xs"></i>oash.uplb@up.edu.ph</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-[#EDE4E4] mt-10 pt-6 text-center text-xs text-[#8F7E7E]">
+                © 2026 UPLB Oash. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/policy.js"></script>
+    <script src="js/law-repository.js"></script>
+</body>
+</html>

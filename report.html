@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash — AI Incident Classifier & Law Mapper</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'] },
+                    colors: { up: { DEFAULT: '#6F1A1F', light: '#8E3A3F', dark: '#510E12', muted: '#F1E4E5' } },
+                    boxShadow: { 'subtle': '0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05)', 'card': '0 8px 24px -8px rgba(111,26,31,0.08)' }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; }
+        .nav-link.active { color: #6F1A1F; font-weight: 500; border-bottom: 2px solid #6F1A1F; padding-bottom: 4px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem; }
+        .law-badge { transition: all 0.2s; display: inline-block; }
+        .law-badge:hover { transform: translateY(-1px); background: #fef3c7; }
+        .severity-grave { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+        .severity-less-grave { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+        .severity-light { background: #fef9c3; color: #854d0e; border-color: #fde047; }
+        .radio-group { display: flex; gap: 1.5rem; align-items: center; }
+        .radio-option { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+        .radio-option input[type="radio"] { width: 1rem; height: 1rem; cursor: pointer; accent-color: #6F1A1F; }
+        .radio-option label { cursor: pointer; font-size: 0.875rem; color: #4F4444; }
+    </style>
+</head>
+<body class="bg-[#FCFAFA] text-[#1A1E24] min-h-screen flex flex-col">
+
+    <!-- Fixed header -->
+    <header class="fixed top-0 w-full bg-white/90 backdrop-blur-sm border-b border-[#EDE4E4] z-50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center"><i class="fas fa-shield-alt text-white text-sm"></i></div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-9 text-sm font-medium">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/report.html" class="nav-link active">Analyze Incident</a>
+                    <a href="/law-repository.html" class="nav-link">Law repository</a>
+                </nav>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="/login.html" class="text-sm font-medium text-[#4B5563] hover:text-up px-4 py-2 transition-colors">Log in</a>
+                    <a href="/register.html" class="bg-up text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-up-light transition-colors shadow-subtle">Register</a>
+                </div>
+                <button class="md:hidden text-[#4B5563] p-2" id="menuBtn" aria-label="menu"><i class="fas fa-bars text-xl"></i></button>
+            </div>
+        </div>
+        <div class="md:hidden hidden bg-white border-t border-[#EDE4E4] py-3 px-5" id="mobileMenu">
+            <div class="flex flex-col space-y-3">
+                <a href="/" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-home w-5 text-[#9CA3AF]"></i>Home</a>
+                <a href="/report.html" class="py-2 text-up font-medium flex items-center gap-3"><i class="fas fa-file-alt w-5 text-up"></i>Analyze Incident</a>
+                <a href="/law-repository.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-gavel w-5 text-[#9CA3AF]"></i>Law repository</a>
+                <div class="border-t border-[#EDE4E4] pt-3 flex flex-col gap-2">
+                    <a href="/login.html" class="w-full text-center py-2.5 border border-[#D0C5C5] rounded-lg text-[#4B5563] font-medium">Log in</a>
+                    <a href="/register.html" class="w-full text-center py-2.5 bg-up text-white rounded-lg font-medium">Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-24 pb-16">
+        <div class="max-w-3xl mx-auto px-5 sm:px-8">
+            <div class="mb-6">
+                <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-[#2A2424] flex items-center gap-3">
+                    <i class="fas fa-gavel text-up text-2xl"></i> 
+                    Analyze Incident
+                </h1>
+                <p class="text-[#655A5A] text-sm mt-1">Describe the incident — our model classifies harassment type & severity, then maps applicable laws based on context.</p>
+            </div>
+
+            <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-6 md:p-7">
+                <form id="reportForm" class="space-y-6">
+                    <!-- Incident Description -->
+                    <div>
+                        <label for="incident-description" class="block text-sm font-medium text-[#4F4444] mb-2">
+                            <i class="fas fa-pen-alt text-up text-xs mr-1"></i> Describe the incident in detail *
+                        </label>
+                        <textarea id="incident-description" maxlength="2000" name="incident-description" rows="6" required
+                            placeholder="Provide context: actions, words, power dynamics, witnesses. Our AI model will classify harassment type and severity."
+                            class="w-full px-4 py-3 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none transition resize-y"></textarea>
+                    </div>
+
+                    <!-- Legal Context Fields -->
+                    <div class="border-t border-[#EDE4E4] pt-5">
+                        <h3 class="text-sm font-semibold text-[#3D3434] mb-3 flex items-center gap-2">
+                            <i class="fas fa-balance-scale text-up text-xs"></i> 
+                            Legal Context Fields
+                        </h3>
+                        <div class="form-grid">
+                            <div>
+                                <label class="block text-xs font-medium text-[#5F4E4E] mb-1">Victim Classification <span class="text-up">*</span></label>
+                                <select id="victimClass" required class="w-full px-3 py-2 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none">
+                                    <option value="" disabled selected>— Select category —</option>
+                                    <option value="Student">Student</option>
+                                    <option value="Professor">Professor</option>
+                                    <option value="Instructor">Instructor</option>
+                                    <option value="Teacher">Teacher</option>
+                                    <option value="Gov't Employee">Gov't Employee</option>
+                                    <option value="Stranger">Stranger</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-[#5F4E4E] mb-1">Complained Classification <span class="text-up">*</span></label>
+                                <select id="perpClass" required class="w-full px-3 py-2 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none">
+                                    <option value="" disabled selected>— Select category —</option>
+                                    <option value="Student">Student</option>
+                                    <option value="Professor">Professor</option>
+                                    <option value="Instructor">Instructor</option>
+                                    <option value="Teacher">Teacher</option>
+                                    <option value="Gov't Employee">Gov't Employee</option>
+                                    <option value="Stranger">Stranger</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-[#5F4E4E] mb-1">Victim is UP Constituent? <span class="text-up">*</span></label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="victimUP" value="Yes" required>
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="victimUP" value="No" required>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-[#5F4E4E] mb-1">Perpetrator is UP Constituent? <span class="text-up">*</span></label>
+                                <div class="radio-group">
+                                    <label class="radio-option">
+                                        <input type="radio" name="perpUP" value="Yes" required>
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="radio-option">
+                                        <input type="radio" name="perpUP" value="No" required>
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-[#5F4E4E] mb-1">Relationship with the Respondent <span class="text-up">*</span></label>
+                                <select id="relationship" required class="w-full px-3 py-2 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none">
+                                    <option value="" disabled selected>— Select relationship —</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="text-[10px] text-[#A18686] mt-2 flex items-center gap-1">
+                            <i class="fas fa-chart-line text-[10px]"></i> Relationship options adapt to victim classification. Used for legal mapping.
+                        </p>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-4 pt-4 border-t border-[#EDE4E4]">
+                        <button type="submit" id="submitBtn" class="bg-up text-white px-7 py-2.5 rounded-lg font-medium text-sm hover:bg-up-light transition-colors shadow-subtle inline-flex items-center gap-2">
+                            <i class="fas fa-scale-balanced"></i> Let's Classify
+                        </button>
+                        <button type="reset" id="resetBtn" class="border border-[#D4C5C5] bg-white px-7 py-2.5 rounded-lg font-medium text-sm text-[#4F4444] hover:border-up hover:text-up transition-colors">
+                            <i class="fas fa-eraser"></i> Clear
+                        </button>
+                        <span class="text-xs text-[#A18686] ml-auto"><i class="fas fa-shield-hooded"></i> UPLB Oash · Secure Analysis</span>
+                    </div>
+                </form>
+
+                <!-- Results Panel -->
+                <div id="resultPanel" class="mt-8 hidden border-t border-[#EDE4E4] pt-6 space-y-5">
+                    <!-- Classification Result -->
+                    <div id="harassmentTypeBox" class="bg-up-muted/30 rounded-xl p-4 border-l-4 border-up">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-flag-checkered text-up text-xl"></i>
+                            <div class="flex-1">
+                                <p class="text-xs uppercase font-semibold text-up/80">AI Classification Result</p>
+                                <p id="harassmentTypeResult" class="text-lg font-bold text-up mt-1">—</p>
+                                <p id="confidenceText" class="text-xs text-up/60 mt-1">—</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Probability Distribution -->
+                    <div class="bg-[#F9F4F4] rounded-xl p-5">
+                        <h4 class="text-sm font-semibold text-[#4F4444] mb-3 flex items-center gap-2">
+                            <i class="fas fa-chart-pie text-up"></i> Harassment Type Probabilities
+                        </h4>
+                        <div class="space-y-3 text-xs">
+                            <div><div class="flex justify-between mb-1"><span>Physical Harassment</span><span id="probPhyVal">0.0000</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="probPhyBar" class="h-full bg-up rounded-full" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between mb-1"><span>Verbal Harassment</span><span id="probVerbVal">0.0000</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="probVerbBar" class="h-full bg-up rounded-full" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between mb-1"><span>Non-Verbal Harassment</span><span id="probNonvVal">0.0000</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="probNonvBar" class="h-full bg-up rounded-full" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between mb-1"><span>Cyber Sexual Harassment</span><span id="probCybVal">0.0000</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="probCybBar" class="h-full bg-up rounded-full" style="width:0%"></div></div></div>
+                            <div><div class="flex justify-between mb-1"><span>Not Harassment</span><span id="probNotVal">0.0000</span></div><div class="h-2 bg-gray-200 rounded-full overflow-hidden"><div id="probNotBar" class="h-full bg-gray-400 rounded-full" style="width:0%"></div></div></div>
+                        </div>
+                        <p id="resultDescription" class="text-xs text-[#8F7E7E] mt-4 italic border-t border-[#E7DCDC] pt-3">—</p>
+                    </div>
+                    
+                    <!-- Severity Badge Container -->
+                    <div id="severityContainer"></div>
+                    
+                    <!-- Applicable Laws Container -->
+                    <div id="applicableLawsContainer" class="bg-amber-50 border border-amber-200 rounded-xl p-5">
+                        <!-- Laws will be populated here -->
+                    </div>
+                </div>
+
+                <div id="errorMessage" class="mt-4 hidden bg-red-50 border-l-4 border-red-500 p-3 rounded text-xs text-red-700"></div>
+            </div>
+            <div class="text-center mt-8">
+                <a href="/" class="text-sm text-up hover:underline inline-flex items-center gap-1"><i class="fas fa-arrow-left text-xs"></i> Back to home</a>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-[#EDE4E4] py-12">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="grid md:grid-cols-4 gap-8 text-sm">
+                <div><div class="flex items-center gap-2 mb-4"><div class="w-7 h-7 rounded bg-up flex items-center justify-center"><i class="fas fa-shield-alt text-white text-xs"></i></div><span class="font-semibold text-up">UPLB Oash</span></div><p class="text-[#706565] text-xs leading-relaxed">Office of Student Counselling · UPLB</p></div>
+                <div><h4 class="font-medium text-[#3D3434] mb-3">Pages</h4><ul class="space-y-2 text-[#706565]"><li><a href="/" class="hover:text-up">Home</a></li><li><a href="/law-repository.html" class="hover:text-up">Law repository</a></li></ul></div>
+                <div><h4 class="font-medium text-[#3D3434] mb-3">Policies</h4><ul class="space-y-2 text-[#706565]"><li>Privacy notice</li><li>Terms of use</li><li>UP Data protection</li></ul></div>
+                <div><h4 class="font-medium text-[#3D3434] mb-3">Contact</h4><ul class="space-y-2 text-[#706565]"><li><i class="fas fa-phone mr-2 text-up/60 text-xs"></i>+63 49 501 1844</li><li><i class="fas fa-envelope mr-2 text-up/60 text-xs"></i>oash.uplb@up.edu.ph</li></ul></div>
+            </div>
+            <div class="border-t border-[#EDE4E4] mt-10 pt-6 text-center text-xs text-[#8F7E7E]">© 2026 UPLB Oash. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <!-- Separate JS Modules -->
+    <script src="js/policy.js"></script>
+    <script src="js/relationship-manager.js"></script>
+    <script src="js/law-mapper.js"></script>
+    <script src="js/report.js"></script>
+    
+    <script>
+        // Add reset functionality for radio buttons
+        document.getElementById('resetBtn')?.addEventListener('click', function(e) {
+            // Reset radio buttons
+            const victimRadio = document.querySelectorAll('input[name="victimUP"]');
+            const perpRadio = document.querySelectorAll('input[name="perpUP"]');
+            victimRadio.forEach(radio => radio.checked = false);
+            perpRadio.forEach(radio => radio.checked = false);
+        });
+    </script>
+</body>
+</html>

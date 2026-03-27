@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash — register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Physics Toast CSS + JS (dynamic island style) -->
+    <link rel="stylesheet" href="animation/physics-toast.min.css">
+    <script src="animation/physics-toast.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05)',
+                        'card': '0 8px 24px -8px rgba(111,26,31,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .nav-link { position: relative; color: #374151; transition: color 0.2s; }
+        .nav-link:hover { color: #6F1A1F; }
+        .nav-link.active { color: #6F1A1F; font-weight: 500; }
+        .nav-link.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -6px; 
+            left: 0; 
+            width: 100%; 
+            height: 2px; 
+            background: #6F1A1F; 
+            border-radius: 2px;
+        }
+        /* physics toast default container override (optional, keeps positioning clean) */
+        .physics-toast-container {
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body class="bg-[#FCFAFA] text-[#1A1E24] min-h-screen flex flex-col">
+
+    <header class="fixed top-0 w-full bg-white/90 backdrop-blur-sm border-b border-[#EDE4E4] z-50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+                <nav class="hidden md:flex items-center gap-9 text-sm font-medium">
+                    <a href="/" class="nav-link">Home</a>
+                    <a href="/report.html" class="nav-link">Analyze Incident</a>
+                    <a href="/law-repository.html" class="nav-link">Law repository</a>
+                </nav>
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="/login.html" class="text-sm font-medium text-[#4B5563] hover:text-up px-4 py-2 transition-colors">Log in</a>
+                    <a href="/register.html" class="bg-up text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-up-light transition-colors shadow-subtle" aria-current="page">Register</a>
+                </div>
+                <button class="md:hidden text-[#4B5563] p-2" id="menuBtn" aria-label="menu">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <div class="md:hidden hidden bg-white border-t border-[#EDE4E4] py-3 px-5" id="mobileMenu">
+            <div class="flex flex-col space-y-3">
+                <a href="/" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-home w-5 text-[#9CA3AF]"></i>Home</a>
+                <a href="/report.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-file w-5 text-[#9CA3AF]"></i>Analyze Incident</a>
+                <a href="/law-repository.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-gavel w-5 text-[#9CA3AF]"></i>Law repository</a>
+                <div class="border-t border-[#EDE4E4] pt-3 flex flex-col gap-2">
+                    <a href="/login.html" class="w-full text-center py-2.5 border border-[#D0C5C5] rounded-lg text-[#4B5563] font-medium">Log in</a>
+                    <a href="/register.html" class="w-full text-center py-2.5 bg-up text-white rounded-lg font-medium">Register</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow pt-24 pb-16 flex items-center justify-center">
+        <div class="w-full max-w-md px-5">
+            <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-8">
+                <div class="text-center mb-6">
+                    <div class="w-12 h-12 rounded-full bg-up-muted flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-user-plus text-up text-lg"></i>
+                    </div>
+                    <h1 class="text-2xl font-semibold tracking-tight text-[#2A2424]">Create an account</h1>
+                    <p class="text-sm text-[#655A5A] mt-1">Join UPLB Oash community</p>
+                </div>
+
+                <form id="registerForm" class="space-y-4">
+                    <div>
+                        <label for="fullname" class="block text-sm font-medium text-[#4F4444] mb-1.5">Full name</label>
+                        <div class="relative">
+                            <i class="fas fa-user absolute left-3 top-1/2 -translate-y-1/2 text-[#B0A0A0] text-sm"></i>
+                            <input type="text" id="fullname" name="fullname" placeholder="e.g., Juan D. Santos" required 
+                                class="w-full pl-9 pr-4 py-2.5 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-[#4F4444] mb-1.5">UP Mail / institutional email</label>
+                        <div class="relative">
+                            <i class="fas fa-envelope absolute left-3 top-1/2 -translate-y-1/2 text-[#B0A0A0] text-sm"></i>
+                            <input type="email" id="email" name="email" placeholder="e.g., jd.santos@up.edu.ph" required 
+                                class="w-full pl-9 pr-4 py-2.5 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="role" class="block text-sm font-medium text-[#4F4444] mb-1.5">I am a</label>
+                        <select id="role" name="role" class="w-full px-4 py-2.5 border border-[#E0D5D5] rounded-lg bg-white text-sm text-[#1A1E24] focus:border-up focus:ring-1 focus:ring-up outline-none transition">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-[#4F4444] mb-1.5">Password</label>
+                        <div class="relative">
+                            <i class="fas fa-key absolute left-3 top-1/2 -translate-y-1/2 text-[#B0A0A0] text-sm"></i>
+                            <input type="password" id="password" name="password" placeholder="Create a strong password" required 
+                                class="w-full pl-9 pr-4 py-2.5 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none transition">
+                        </div>
+                        <p class="text-[10px] text-[#A18686] mt-1">Minimum 8 characters, at least 1 number</p>
+                    </div>
+
+                    <div>
+                        <label for="confirm-password" class="block text-sm font-medium text-[#4F4444] mb-1.5">Confirm password</label>
+                        <div class="relative">
+                            <i class="fas fa-check-circle absolute left-3 top-1/2 -translate-y-1/2 text-[#B0A0A0] text-sm"></i>
+                            <input type="password" id="confirm-password" name="confirm-password" placeholder="Re-enter password" required 
+                                class="w-full pl-9 pr-4 py-2.5 border border-[#E0D5D5] rounded-lg bg-white text-sm focus:border-up focus:ring-1 focus:ring-up outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="flex items-start gap-2 mt-2">
+                        <input type="checkbox" id="terms" class="mt-1 rounded border-[#D4C5C5] text-up focus:ring-up focus:ring-offset-0" checked>
+                        <label for="terms" class="text-xs text-[#5E4F4F]">
+                            I agree to the <a href="#" class="text-up hover:underline">Terms of Use</a> and <a href="#" class="text-up hover:underline">Privacy Policy</a>, including the processing of my personal data for SafeSpace services.
+                        </label>
+                    </div>
+
+                    <button type="submit" id="submitBtn" class="w-full bg-up text-white py-2.5 rounded-lg font-medium text-sm hover:bg-up-light transition-colors shadow-subtle flex items-center justify-center gap-2 mt-6">
+                        <i class="fas fa-user-check"></i> Create account
+                    </button>
+                </form>
+
+                <div class="relative my-6">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-[#EDE4E4]"></div>
+                    </div>
+                    <div class="relative flex justify-center text-xs">
+                        <span class="px-3 bg-white text-[#9A8989]">or sign up with</span>
+                    </div>
+                </div>
+
+                <p class="text-xs text-center text-[#706565] mt-6">
+                    Already have an account? 
+                    <a href="/login.html" class="text-up font-medium hover:underline">Log in</a>
+                </p>
+            </div>
+
+            <p class="text-center text-xs text-[#A18686] mt-6">
+                <i class="fas fa-incognito mr-1"></i> Prefer not to create an account? 
+                <a href="/report.html" class="text-up hover:underline">Analyze incident report</a>
+            </p>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t border-[#EDE4E4] py-12">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="grid md:grid-cols-4 gap-8 text-sm">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-7 h-7 rounded bg-up flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-up">UPLB Oash</span>
+                    </div>
+                    <p class="text-[#706565] text-xs leading-relaxed">Office of Student Counselling · UPLB</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Pages</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><a href="/" class="hover:text-up">Home</a></li>
+                        <li><a href="/law-repository.html" class="hover:text-up">Law repository</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Policies</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li>Privacy notice</li>
+                        <li>Terms of use</li>
+                        <li>UP Data protection</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Contact</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><i class="fas fa-phone mr-2 text-up/60 text-xs"></i>+63 49 501 1844</li>
+                        <li><i class="fas fa-envelope mr-2 text-up/60 text-xs"></i>oash.uplb@up.edu.ph</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-[#EDE4E4] mt-10 pt-6 text-center text-xs text-[#8F7E7E]">
+                © 2026 UPLB Oash. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/register.js"></script>
+</body>
+</html>

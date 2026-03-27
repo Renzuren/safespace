@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash — home</title>
+    <!-- Inter font - professional, clean, widely used in modern dashboards -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 (icons only) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind with Inter as default -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F', // UP Maroon (more muted, professional)
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05)',
+                        'card': '0 8px 24px -8px rgba(111,26,31,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* smooth scrolling only, no gimmicks */
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .nav-link { position: relative; color: #374151; transition: color 0.2s; }
+        .nav-link:hover { color: #6F1A1F; }
+        .nav-link.active { color: #6F1A1F; font-weight: 500; }
+        .nav-link.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -6px; 
+            left: 0; 
+            width: 100%; 
+            height: 2px; 
+            background: #6F1A1F; 
+            border-radius: 2px;
+        }
+        .card-hover { transition: all 0.2s ease; }
+        .card-hover:hover { transform: translateY(-2px); box-shadow: 0 16px 28px -12px rgba(111,26,31,0.18); }
+        .stat-value { font-size: 2rem; font-weight: 600; line-height: 1.2; letter-spacing: -0.02em; }
+        .prob-bar { background: #EDE9E9; height: 6px; border-radius: 4px; overflow: hidden; }
+        .prob-fill { background: #6F1A1F; height: 100%; border-radius: 4px; }
+        .classifier-card { background: #FFFFFF; border: 1px solid #F0E9E9; }
+    </style>
+</head>
+<body class="bg-[#FCFAFA] text-[#1A1E24]">
+
+    <!-- Fixed header - clean, minimal -->
+    <header class="fixed top-0 w-full bg-white/90 backdrop-blur-sm border-b border-[#EDE4E4] z-50">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo + wordmark -->
+                <div class="flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+
+                <!-- Desktop navigation -->
+                <nav class="hidden md:flex items-center gap-9 text-sm font-medium">
+                    <a href="/" class="nav-link active" aria-current="page">Home</a>
+                    <a href="/report.html" class="nav-link">Analyze Incident</a>
+                    <a href="/law-repository.html" class="nav-link">Law repository</a>
+                </nav>
+
+                <!-- Desktop auth -->
+                <div class="hidden md:flex items-center gap-3">
+                    <a href="/login.html" class="text-sm font-medium text-[#4B5563] hover:text-up px-4 py-2 transition-colors">Log in</a>
+                    <a href="/register.html" class="bg-up text-white text-sm font-medium px-5 py-2 rounded-lg hover:bg-up-light transition-colors shadow-subtle">Register</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <button class="md:hidden text-[#4B5563] p-2" id="menuBtn" aria-label="menu">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile menu dropdown (hidden by default) -->
+        <div class="md:hidden hidden bg-white border-t border-[#EDE4E4] py-3 px-5" id="mobileMenu">
+            <div class="flex flex-col space-y-3">
+                <a href="/" class="py-2 text-up font-medium border-b border-[#F0E4E4] flex items-center gap-3"><i class="fas fa-home w-5 text-up/70"></i>Home</a>
+                <a href="/report.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-file w-5 text-[#9CA3AF]"></i>Analyze Incident</a>
+                <a href="/law-repository.html" class="py-2 text-[#374151] hover:text-up flex items-center gap-3"><i class="fas fa-gavel w-5 text-[#9CA3AF]"></i>Law repository</a>
+                <div class="border-t border-[#EDE4E4] pt-3 flex flex-col gap-2">
+                    <a href="/login.html" class="w-full text-center py-2.5 border border-[#D0C5C5] rounded-lg text-[#4B5563] font-medium">Log in</a>
+                    <a href="/register.html" class="w-full text-center py-2.5 bg-up text-white rounded-lg font-medium">register.html</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-16">
+        <!-- Hero section – clean typography, no over-animation -->
+        <section class="border-b border-[#EDE4E4] bg-white">
+            <div class="max-w-7xl mx-auto px-5 sm:px-8 py-16 md:py-20">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <!-- left -->
+                    <div>
+                        <div class="inline-flex items-center gap-2 bg-[#F4EBEB] px-3 py-1.5 rounded-full text-up text-xs font-medium mb-5">
+                            <span class="w-1.5 h-1.5 bg-up rounded-full"></span>
+                            OASH UPLB
+                        </div>
+                        <h1 class="text-[2.5rem] md:text-[3.2rem] font-bold leading-[1.15] tracking-[-0.02em] text-[#1F1A1A]">
+                            Report incidents.<br>Get support.<span class="text-up"> Know the law.</span>
+                        </h1>
+                        <p class="text-[#5E5A5A] text-base md:text-lg mt-6 max-w-md">
+                            Confidential platform for the UPLB community. File anonymous reports, schedule guidance appointments, and access anti-harassment laws.
+                        </p>
+                        <div class="flex flex-wrap gap-4 mt-8">
+                            <a href="/report.html" class="bg-up text-white px-6 py-2.5 rounded-lg font-medium text-sm shadow-sm hover:bg-up-light transition-colors inline-flex items-center gap-2">
+                                <i class="fas fa-flag"></i> Analyze Incident
+                            </a>
+                            <a href="/law-repository.html" class="border border-[#D4C5C5] bg-white px-6 py-2.5 rounded-lg font-medium text-sm text-[#4B3F3F] hover:border-up hover:text-up transition-colors inline-flex items-center gap-2">
+                                <i class="fas fa-gavel"></i> Browse laws
+                            </a>
+                        </div>
+                        <!-- subtle stats -->
+                        <div class="grid grid-cols-3 gap-5 mt-12">
+                            <div>
+                                <div class="stat-value text-up">50+</div>
+                                <div class="text-xs text-[#6F5E5E] uppercase tracking-wider">Reports</div>
+                            </div>
+                            <div>
+                                <div class="stat-value text-up">24/7</div>
+                                <div class="text-xs text-[#6F5E5E] uppercase tracking-wider">Support</div>
+                            </div>
+                            <div>
+                                <div class="stat-value text-up">5</div>
+                                <div class="text-xs text-[#6F5E5E] uppercase tracking-wider">Legal areas</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- right: classifier card (data-focused) -->
+                    <div class="classifier-card rounded-xl p-6 shadow-card">
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-xs font-medium text-up bg-up-muted px-3 py-1 rounded-full">AI CLASSIFIER · DEMO</span>
+                            <span class="text-xs text-[#8A7A7A]">v2.1.0</span>
+                        </div>
+                        <div class="bg-[#F9F4F4] p-4 rounded-lg text-sm italic text-[#4F4444] border-l-2 border-up/40">
+                            “I asked a stranger for directions and they politely helped me find the bus stop.”
+                        </div>
+                        <div class="mt-5">
+                            <div class="flex justify-between items-baseline">
+                                <span class="font-medium text-sm">Prediction</span>
+                                <span class="text-xs bg-[#EDE1E1] px-2 py-0.5 rounded-full">confidence 0.77</span>
+                            </div>
+                            <div class="mt-2 text-lg font-semibold text-up">Not Harassment</div>
+                            <!-- probability bars -->
+                            <div class="mt-4 space-y-2.5">
+                                <div>
+                                    <div class="flex justify-between text-xs text-[#5E4F4F] mb-1"><span>Physical</span><span>0.053</span></div>
+                                    <div class="prob-bar"><div class="prob-fill" style="width:5.3%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-[#5E4F4F] mb-1"><span>Verbal</span><span>0.020</span></div>
+                                    <div class="prob-bar"><div class="prob-fill" style="width:2.0%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-[#5E4F4F] mb-1"><span>Non-verbal</span><span>0.154</span></div>
+                                    <div class="prob-bar"><div class="prob-fill" style="width:15.4%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs font-medium text-up mb-1"><span>Not harassment</span><span>0.770</span></div>
+                                    <div class="prob-bar"><div class="prob-fill" style="width:77%"></div></div>
+                                </div>
+                                <div>
+                                    <div class="flex justify-between text-xs text-[#5E4F4F] mb-1"><span>Cyber sexual</span><span>0.001</span></div>
+                                    <div class="prob-bar"><div class="prob-fill" style="width:0.1%"></div></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 text-[10px] font-mono text-[#A18686] border-t border-[#EDE4E4] pt-3">
+                                [0.0531, 0.0205, 0.1547, 0.7700, 0.0017]
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features grid – simple cards, each linking to a page -->
+        <section class="py-20 bg-[#FCFAFA]">
+            <div class="max-w-7xl mx-auto px-5 sm:px-8">
+                <div class="text-center max-w-2xl mx-auto mb-14">
+                    <h2 class="text-2xl md:text-3xl font-semibold tracking-tight text-[#2A2424]">Everything you need in one place</h2>
+                    <p class="text-[#655A5A] text-sm mt-3">Built for UPLB students, faculty, and staff.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <!-- File a report card -->
+                    <div class="bg-white p-7 rounded-xl border border-[#EEE5E5] card-hover">
+                        <div class="w-11 h-11 rounded-lg bg-up-muted flex items-center justify-center mb-5">
+                            <i class="fas fa-pen-to-square text-up text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[#2A2424] mb-2">AI Incident Classification</h3>
+                        <p class="text-sm text-[#655A5A] leading-relaxed mb-4">Anonymous or identified. Submit incident details securely. Choose to include evidence.</p>
+                        <a href="/report.html" class="text-up text-sm font-medium inline-flex items-center gap-1.5 hover:gap-2 transition-all">
+                            Analyze Incident <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                    <!-- Appointments card -->
+                    <div class="bg-white p-7 rounded-xl border border-[#EEE5E5] card-hover">
+                        <div class="w-11 h-11 rounded-lg bg-up-muted flex items-center justify-center mb-5">
+                            <i class="fas fa-calendar-check text-up text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[#2A2424] mb-2">Appointments</h3>
+                        <p class="text-sm text-[#655A5A] leading-relaxed mb-4">Book sessions with guidance counselors, legal aid, or wellness officers.</p>
+                        <a href="/appointments" class="text-up text-sm font-medium inline-flex items-center gap-1.5 hover:gap-2 transition-all">
+                            Schedule <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                    <!-- Law repository card -->
+                    <div class="bg-white p-7 rounded-xl border border-[#EEE5E5] card-hover">
+                        <div class="w-11 h-11 rounded-lg bg-up-muted flex items-center justify-center mb-5">
+                            <i class="fas fa-scale-balanced text-up text-xl"></i>
+                        </div>
+                        <h3 class="text-lg font-semibold text-[#2A2424] mb-2">Law repository</h3>
+                        <p class="text-sm text-[#655A5A] leading-relaxed mb-4">Searchable database of RA 11313, VAWC, UP policies, and anti-harassment laws.</p>
+                        <a href="/law-repository.html" class="text-up text-sm font-medium inline-flex items-center gap-1.5 hover:gap-2 transition-all">
+                            Browse <i class="fas fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Testimonial / trust section (very minimal) -->
+        <section class="border-y border-[#EDE4E4] bg-white">
+            <div class="max-w-3xl mx-auto px-5 py-16 text-center">
+                <i class="fas fa-quote-right text-4xl text-up/20 mb-5"></i>
+                <p class="text-lg md:text-xl text-[#4A3F3F] italic leading-relaxed">“I filed a report anonymously. The process was straightforward, and the Office of Student Counselling reached out within 24 hours.”</p>
+                <div class="flex items-center justify-center gap-2 mt-6">
+                    <div class="w-8 h-8 rounded-full bg-up/10 flex items-center justify-center">
+                        <span class="text-up text-xs font-semibold">UP</span>
+                    </div>
+                    <span class="text-sm font-medium text-[#4F4444]">UPLB student</span>
+                    <span class="text-[#B0A0A0] text-xs">· anonymous</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA - simple, no gimmicks -->
+        <section class="py-16 bg-up">
+            <div class="max-w-2xl mx-auto text-center px-5">
+                <h2 class="text-2xl md:text-3xl font-semibold text-white">Create an account with E-Mail</h2>
+                <p class="text-white/80 text-sm mt-2 mb-6">Track your reports, save laws, and manage appointments.</p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a href="/register.html" class="bg-white text-up px-7 py-2.5 rounded-lg font-medium text-sm shadow-sm hover:bg-gray-50 transition">Register with E-Mail</a>
+                    <a href="/login.html" class="border border-white/40 text-white px-7 py-2.5 rounded-lg font-medium text-sm hover:bg-white/10 transition">Log in</a>
+                </div>
+                <p class="text-white/50 text-xs mt-5">No E-Mail? You can still file anonymous reports.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer – clean, with proper pages links -->
+    <footer class="bg-white border-t border-[#EDE4E4] py-12">
+        <div class="max-w-7xl mx-auto px-5 sm:px-8">
+            <div class="grid md:grid-cols-4 gap-8 text-sm">
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-7 h-7 rounded bg-up flex items-center justify-center">
+                            <i class="fas fa-shield-alt text-white text-xs"></i>
+                        </div>
+                        <span class="font-semibold text-up">UPLB Oash</span>
+                    </div>
+                    <p class="text-[#706565] text-xs leading-relaxed">Office of Student Counselling · UPLB</p>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Pages</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><a href="/" class="hover:text-up">Home</a></li>
+                        <li><a href="/law-repository.html" class="hover:text-up">Law repository</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Policies</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li>Privacy notice</li>
+                        <li>Terms of use</li>
+                        <li>UP Data protection</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-medium text-[#3D3434] mb-3">Contact</h4>
+                    <ul class="space-y-2 text-[#706565]">
+                        <li><i class="fas fa-phone mr-2 text-up/60 text-xs"></i>+63 49 501 1844</li>
+                        <li><i class="fas fa-envelope mr-2 text-up/60 text-xs"></i>oash.uplb@up.edu.ph</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-[#EDE4E4] mt-10 pt-6 text-center text-xs text-[#8F7E7E]">
+                © 2026 UPLB Oash. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Simple mobile menu toggle -->
+    <script>
+        (function() {
+            const menuBtn = document.getElementById('menuBtn');
+            const mobileMenu = document.getElementById('mobileMenu');
+            if (menuBtn && mobileMenu) {
+                menuBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mobileMenu.classList.toggle('hidden');
+                });
+                // close if click outside (optional)
+                document.addEventListener('click', function(event) {
+                    if (!menuBtn.contains(event.target) && !mobileMenu.contains(event.target)) {
+                        mobileMenu.classList.add('hidden');
+                    }
+                });
+            }
+        })();
+    </script>
+    <!-- No AOS, no heavy animations – just clean UI -->
+</body>
+</html>

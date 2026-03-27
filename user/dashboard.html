@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash — dashboard</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Tailwind with custom config -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05)',
+                        'card': '0 8px 24px -8px rgba(111,26,31,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .sidebar-link { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.75rem; 
+            padding: 0.625rem 1rem; 
+            border-radius: 0.5rem; 
+            font-size: 0.95rem; 
+            font-weight: 500; 
+            color: #4B5563; 
+            transition: all 0.15s; 
+        }
+        .sidebar-link i { 
+            width: 1.5rem; 
+            font-size: 1.1rem; 
+            color: #9CA3AF; 
+            transition: color 0.15s; 
+        }
+        .sidebar-link:hover { 
+            background-color: #F4EBEB; 
+            color: #6F1A1F; 
+        }
+        .sidebar-link:hover i { 
+            color: #6F1A1F; 
+        }
+        .sidebar-link.active { 
+            background-color: #F4EBEB; 
+            color: #6F1A1F; 
+            font-weight: 600; 
+        }
+        .sidebar-link.active i { 
+            color: #6F1A1F; 
+        }
+        .stat-card {
+            background: white;
+            border: 1px solid #EDE4E4;
+            border-radius: 1rem;
+            padding: 1.25rem;
+            box-shadow: 0 8px 24px -8px rgba(111,26,31,0.08);
+        }
+        .loading-shimmer {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e9e9e9 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.2s infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+    </style>
+</head>
+<body class="bg-[#FCFAFA] text-[#1A1E24] min-h-screen flex flex-col">
+
+    <!-- Main layout with fixed sidebar -->
+    <div class="flex min-h-screen">
+        <!-- Sidebar (desktop) -->
+        <aside class="hidden md:block w-64 bg-white border-r border-[#EDE4E4] fixed h-screen overflow-y-auto">
+            <div class="p-5 flex flex-col h-full">
+                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-[#EDE4E4]">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+
+                <nav class="flex-1 space-y-1">
+                    <a href="#" class="sidebar-link active" data-nav="dashboard">
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="/user/report.html" class="sidebar-link">
+                        <i class="fas fa-flag"></i> File a report
+                    </a>
+                    <a href="/user/appointments.html" class="sidebar-link">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a>
+                    <a href="/user/my-reports.html" class="sidebar-link">
+                        <i class="fas fa-folder-open"></i> My reports
+                    </a>
+                </nav>
+
+                <div class="pt-4 mt-auto border-t border-[#EDE4E4] space-y-2">
+                    <div class="px-1">
+                        <div class="text-xs text-[#8F7E7E]">Logged in as</div>
+                        <div class="text-sm font-medium truncate" id="sidebarFullName">Loading...</div>
+                        <div class="text-xs text-[#8F7E7E] truncate" id="sidebarEmail">Loading...</div>
+                    </div>
+                    <a href="#" id="logoutBtn" class="sidebar-link w-full text-[#B02B2B] hover:bg-red-50 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile bottom nav -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EDE4E4] z-40 flex justify-around py-2">
+            <a href="#" class="flex flex-col items-center text-up text-xs" data-mobile-nav="dashboard"><i class="fas fa-chart-pie text-lg"></i>Dashboard</a>
+            <a href="/user/report.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-flag text-lg"></i>Report</a>
+            <a href="/user/appointments.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-calendar-check text-lg"></i>Appts</a>
+            <a href="/user/my-reports.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-folder-open text-lg"></i>Reports</a>
+            <a href="#" id="mobileLogoutBtn" class="flex flex-col items-center text-[#B02B2B] text-xs"><i class="fas fa-sign-out-alt text-lg"></i>Logout</a>
+        </div>
+
+        <!-- Main content -->
+        <main class="flex-1 md:ml-64 p-5 md:p-8">
+            <div class="max-w-6xl">
+                <!-- Page heading with dynamic user name -->
+                <div class="mb-8">
+                    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-[#2A2424]" id="welcomeHeading">Welcome back, <span id="userFirstName">Juan</span></h1>
+                    <p class="text-[#655A5A] text-sm mt-1">Here's what's happening with your reports and appointments.</p>
+                </div>
+
+                <!-- Stats cards - dynamic values from /dashboard -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-xs text-[#8F7E7E] uppercase tracking-wider">Total reports</p><p class="text-3xl font-semibold text-[#2A2424] mt-1" id="totalReports">—</p></div>
+                            <div class="w-10 h-10 rounded-full bg-up-muted flex items-center justify-center text-up"><i class="fas fa-flag"></i></div>
+                        </div>
+                        <p class="text-xs text-green-600 mt-2" id="totalReportsDelta"><i class="fas fa-chart-line"></i> loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-xs text-[#8F7E7E] uppercase tracking-wider">Pending</p><p class="text-3xl font-semibold text-[#2A2424] mt-1" id="pendingReports">—</p></div>
+                            <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-amber-600"><i class="fas fa-clock"></i></div>
+                        </div>
+                        <p class="text-xs text-amber-600 mt-2" id="pendingStatusText">Awaiting review</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-xs text-[#8F7E7E] uppercase tracking-wider">Appointments</p><p class="text-3xl font-semibold text-[#2A2424] mt-1" id="totalAppointments">—</p></div>
+                            <div class="w-10 h-10 rounded-full bg-up-muted flex items-center justify-center text-up"><i class="fas fa-calendar-check"></i></div>
+                        </div>
+                        <p class="text-xs text-up mt-2" id="nextAppointmentHint">Next: loading...</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="flex items-center justify-between">
+                            <div><p class="text-xs text-[#8F7E7E] uppercase tracking-wider">Total resolved</p><p class="text-3xl font-semibold text-[#2A2424] mt-1" id="resolvedReports">—</p></div>
+                            <div class="w-10 h-10 rounded-full bg-up-muted flex items-center justify-center text-up"><i class="fas fa-check-circle"></i></div>
+                        </div>
+                        <p class="text-xs text-green-600 mt-2">Resolved cases</p>
+                    </div>
+                </div>
+
+                <!-- Recent reports & upcoming appointments -->
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <!-- Recent reports list (API: /reports) -->
+                    <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-semibold text-[#2A2424]">Recent reports</h2>
+                            <a href="/user/my-reports.html" class="text-up text-sm hover:underline">View all <i class="fas fa-arrow-right text-xs ml-1"></i></a>
+                        </div>
+                        <div id="recentReportsList" class="space-y-4">
+                            <div class="py-3 text-center text-gray-400 text-sm">Loading reports...</div>
+                        </div>
+                    </div>
+
+                    <!-- Upcoming appointments (API: /appointments) -->
+                    <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-5">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="font-semibold text-[#2A2424]">Upcoming appointments</h2>
+                            <a href="/user/appointments.html" class="text-up text-sm hover:underline">Schedule <i class="fas fa-plus text-xs ml-1"></i></a>
+                        </div>
+                        <div id="upcomingAppointmentsList" class="space-y-4">
+                            <div class="py-3 text-center text-gray-400 text-sm">Loading appointments...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact details -->
+                <div class="mt-8">
+                    <div class="bg-white border border-[#EDE4E4] rounded-lg p-5 max-w-md hover:shadow-subtle transition">
+                        <div class="flex items-center gap-4">
+                            <i class="fas fa-headset text-up text-2xl"></i>
+                            <div>
+                                <h3 class="font-medium text-[#2A2424]">Office of Student Counselling</h3>
+                                <p class="text-sm text-[#8F7E7E] mt-1">+63 49 501 1844 · oash.uplb@up.edu.ph</p>
+                                <p class="text-xs text-[#A18686] mt-1">Mezzanine, Graduate School Bldg., International House Complex, UPLB, Los Baños, Laguna</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

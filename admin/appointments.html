@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>UPLB Oash · Admin appointments</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Physics Toast CSS & JS -->
+    <link rel="stylesheet" href="css/appointment.css">
+    <link rel="stylesheet" href="../animation/physics-toast.min.css">
+    <script src="../animation/physics-toast.min.js"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- Desktop Sidebar - ADMIN -->
+    <aside class="hidden md:block w-64 bg-white border-r border-[#EDE4E4] fixed h-screen overflow-y-auto">
+        <div class="p-5 flex flex-col h-full">
+            <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-[#EDE4E4]">
+                <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-white text-sm"></i>
+                </div>
+                <span class="font-semibold text-[#6F1A1F] text-lg">UPLB Oash</span>
+            </div>
+            
+            <nav class="flex-1 space-y-1">
+                <a href="/admin/dashboard.html" class="sidebar-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="#" class="sidebar-link active"><i class="fas fa-calendar-check"></i> Appointments</a>
+                <a href="/admin/reports.html" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+                <a href="/admin/users.html" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+                <a href="/admin/my-account.html" class="sidebar-link"><i class="fas fa-user-circle"></i> My account</a>
+            </nav>
+            
+            <div class="pt-4 border-t border-[#EDE4E4]">
+                <div class="px-1 pb-2">
+                    <div class="text-xs text-[#8F7E7E]">Logged in as</div>
+                    <div class="text-sm font-medium" id="sidebarFullName">Admin</div>
+                    <div class="text-xs text-[#8F7E7E]" id="sidebarEmail">admin@up.edu.ph</div>
+                </div>
+                <a href="#" class="sidebar-link text-[#B02B2B]" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Bottom Nav -->
+    <div class="mobile-bottom-nav md:hidden">
+        <a href="/admin/dashboard.html" class="mobile-nav-item"><i class="fas fa-chart-pie"></i><span>Dashboard</span></a>
+        <a href="#" class="mobile-nav-item active"><i class="fas fa-calendar-check"></i><span>Appts</span></a>
+        <a href="/admin/reports.html" class="mobile-nav-item"><i class="fas fa-flag"></i><span>Reports</span></a>
+        <a href="/admin/users.html" class="mobile-nav-item"><i class="fas fa-users"></i><span>Users</span></a>
+        <a href="/admin/my-account.html" class="mobile-nav-item"><i class="fas fa-user-circle"></i><span>Account</span></a>
+    </div>
+
+    <!-- Main Content -->
+    <main class="md:ml-64 min-h-screen">
+        <div class="max-w-6xl mx-auto p-4 md:p-8 pb-28 md:pb-8">
+            <!-- Header -->
+            <div class="mb-6">
+                <h1 class="text-2xl md:text-3xl font-semibold text-[#2A2424]">Appointments</h1>
+                <p class="text-[#655A5A] text-sm mt-1">View and manage appointment statuses</p>
+            </div>
+
+            <!-- Search and Filters (Date Range) -->
+            <div class="filter-container">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="searchInput" placeholder="Search by name or purpose..." class="search-input">
+                    </div>
+                    
+                    <select id="statusFilter" class="filter-select">
+                        <option value="all">All statuses</option>
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    
+                    <!-- Date Range: fromDate and toDate -->
+                    <div class="date-range-group">
+                        <input type="date" id="fromDate" class="date-input" placeholder="From date">
+                        <span class="text-xs text-[#8F7E7E]">to</span>
+                        <input type="date" id="toDate" class="date-input" placeholder="To date">
+                    </div>
+                </div>
+                <div class="flex justify-end mt-3">
+                    <button id="clearFiltersBtn" class="text-xs text-[#6F1A1F] bg-[#F4EBEB] px-3 py-1 rounded-full hover:bg-[#E8D8D8]"><i class="fas fa-times mr-1"></i>Clear filters</button>
+                </div>
+            </div>
+
+            <!-- Desktop Table -->
+            <div class="hidden md:block table-container">
+                <table class="appointments-table">
+                    <thead>
+                        <tr><th>Student</th><th>Date & time</th><th>Mode</th><th>Purpose</th><th>Status</th><th>Actions</th> </tr>
+                    </thead>
+                    <tbody id="desktop-table-body"> <tr><td colspan="6" class="text-center py-8"><div class="loading-spinner mx-auto"></div> Loading...</td></tr> </tbody>
+                </table>
+                <div class="pagination-container" id="desktop-pagination">
+                    <div class="pagination-info" id="desktop-pagination-info"></div>
+                    <div class="pagination-buttons" id="desktop-pagination-buttons"></div>
+                </div>
+            </div>
+
+            <!-- Mobile Cards -->
+            <div class="md:hidden" id="mobile-cards-container"><div class="text-center py-8"><div class="loading-spinner mx-auto"></div> Loading...</div></div>
+            <div class="md:hidden flex flex-col items-center gap-3 mt-4" id="mobile-pagination">
+                <div class="text-xs text-[#8F7E7E]" id="mobile-pagination-info"></div>
+                <div class="flex gap-2" id="mobile-pagination-buttons"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- View Details Modal -->
+    <div id="viewModal" class="modal-overlay hidden">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3 class="text-lg font-semibold text-[#2A2424]"><i class="fas fa-calendar-check mr-2 text-up"></i>Appointment Details</h3>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-[#6F1A1F]"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button id="modalCloseBtn" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-gray-700 transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/me.js"></script>
+    <script src="js/appointment.js"></script>
+</body>
+</html>

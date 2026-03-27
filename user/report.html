@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPLB Oash — file a report</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="../animation/physics-toast.min.css">
+    <link rel="stylesheet" href="css/report.css">
+    <script src="../animation/physics-toast.min.js"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    },
+                    boxShadow: {
+                        'subtle': '0 4px 12px rgba(0,0,0,0.02), 0 1px 2px rgba(0,0,0,0.05)',
+                        'card': '0 8px 24px -8px rgba(111,26,31,0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#FCFAFA] text-[#1A1E24] min-h-screen flex flex-col">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar (same as dashboard) -->
+        <aside class="hidden md:block w-64 bg-white border-r border-[#EDE4E4] fixed h-screen overflow-y-auto">
+            <div class="p-5 flex flex-col h-full">
+                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-[#EDE4E4]">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+                <nav class="flex-1 space-y-1">
+                    <a href="/user/dashboard.html" class="sidebar-link">
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="/user/report.html" class="sidebar-link active">
+                        <i class="fas fa-flag"></i> File a report
+                    </a>
+                    <a href="/user/appointments.html" class="sidebar-link">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a>
+                    <a href="/user/my-reports.html" class="sidebar-link">
+                        <i class="fas fa-folder-open"></i> My reports
+                    </a>
+                </nav>
+                <div class="pt-4 mt-auto border-t border-[#EDE4E4] space-y-2">
+                    <div class="px-1 pb-2">
+                        <div class="text-xs text-[#8F7E7E]">Logged in as</div>
+                        <div class="text-sm font-medium truncate" id="sidebarFullName">Loading...</div>
+                        <div class="text-xs text-[#8F7E7E] truncate" id="sidebarEmail">Loading...</div>
+                    </div>
+                    <a href="#" id="logoutBtn" class="sidebar-link w-full text-[#B02B2B] hover:bg-red-50 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- mobile bottom nav -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-[#EDE4E4] z-40 flex justify-around py-2">
+            <a href="/user/dashboard.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-chart-pie text-lg"></i>Dashboard</a>
+            <a href="/user/report.html" class="flex flex-col items-center text-up text-xs"><i class="fas fa-flag text-lg"></i>Report</a>
+            <a href="/user/appointments.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-calendar-check text-lg"></i>Appts</a>
+            <a href="/user/my-reports.html" class="flex flex-col items-center text-[#6F5E5E] text-xs"><i class="fas fa-folder-open text-lg"></i>Reports</a>
+            <a href="#" id="mobileLogoutBtn" class="flex flex-col items-center text-[#B02B2B] text-xs"><i class="fas fa-sign-out-alt text-lg"></i>Logout</a>
+        </div>
+
+        <!-- Main content -->
+        <main class="flex-1 md:ml-64 p-5 md:p-8">
+            
+            <div class="max-w-4xl mx-auto">
+                <!-- Header -->
+                <div class="mb-6 flex items-center gap-3">
+                    <span class="text-up text-sm font-medium"><i class="fas fa-flag mr-1"></i>File a report</span>
+                </div>
+
+                <!-- Main form card -->
+                <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-6 md:p-8">
+                    <h2 class="text-2xl font-semibold text-[#2A2424] mb-2">Report an incident</h2>
+                    <p class="text-sm text-[#8F7E7E] mb-6">All information is handled with confidentiality by the Office of Student Counselling (OASH). <span class="text-red-500">*</span> indicates required fields.</p>
+
+                    <form id="reportForm">
+                        <!-- ========== PERSONAL INFORMATION ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2"><i class="fas fa-user-circle"></i> Personal information</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
+                            <div><label class="form-label required-star">First name</label><input type="text" id="firstName" class="form-input" placeholder="Juan"></div>
+                            <div><label class="form-label required-star">Middle name</label><input type="text" id="middleName" class="form-input" placeholder="Delos Reyes"></div>
+                            <div><label class="form-label required-star">Last name</label><input type="text" id="lastName" class="form-input" placeholder="Santos"></div>
+                            <div><label class="form-label required-star">Age</label><input type="number" id="age" class="form-input" placeholder="22"></div>
+                            <div><label class="form-label required-star">I am biologically</label><select id="biologicalSex" class="form-select"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                            <div><label class="form-label required-star">I identify myself as</label><select id="identifiedAs" class="form-select"><option value="">Select</option><option>Male</option><option>Female</option><option>Non-binary</option><option>Other</option></select></div>
+                            <div><label class="form-label required-star">Civil status</label><select id="civilStatus" class="form-select"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div>
+                            <div><label class="form-label required-star">Mobile no.</label><input type="tel" id="mobileNumber" class="form-input" placeholder="09171234567"></div>
+                            <div><label class="form-label">Landline no.</label><input type="tel" id="landLineNumber" class="form-input" placeholder="(049) 536 1234"></div>
+                            <div class="sm:col-span-2"><label class="form-label required-star">Present address</label><input type="text" id="presentAddress" class="form-input" placeholder="Dorm, apartment, etc."></div>
+                            <div class="sm:col-span-2"><label class="form-label required-star">Permanent address</label><input type="text" id="permanentAddress" class="form-input" placeholder="Province / home address"></div>
+                        </div>
+
+                        <!-- classification + college + department/unit -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 mt-4">
+                            <div><label class="form-label required-star">Classification</label><select id="classification" class="form-select"><option value="">Select</option><option>Student</option><option>Professor</option><option>Instructor</option><option>Teacher</option><option>Gov't Employee</option><option>Stranger</option></select></div>
+                            <div><label class="form-label required-star">College</label><input type="text" id="college" class="form-input" placeholder="e.g., CAS, CEAT"></div>
+                            <div><label class="form-label required-star">Department/Unit</label><input type="text" id="department" class="form-input" placeholder="e.g., Dept of Social Sciences"></div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== RESPONDENT'S NAME ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2"><i class="fas fa-user-tag"></i> Respondent's details (person complained of)</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div><label class="form-label required-star">Full name of person being complained</label><input type="text" id="complainedFullName" class="form-input" placeholder="Last, First M.I. or unknown"></div>
+                            <div><label class="form-label required-star">Sex</label><select id="complainedSex" class="form-select"><option value="">Select</option><option>Male</option><option>Female</option><option>Other</option></select></div>
+                            <div><label class="form-label required-star">Classification</label><select id="complainedClassification" class="form-select"><option value="">Select</option><option>Student</option><option>Faculty</option><option>REPS</option><option>Admin</option><option>ICS</option><option>Non UP</option></select></div>
+                            <div><label class="form-label">College</label><input type="text" id="complainedCollege" class="form-input" placeholder="if applicable"></div>
+                            <div class="sm:col-span-2"><label class="form-label">Department/Unit</label><input type="text" id="complainedDepartment" class="form-input" placeholder="e.g., Dept, office, or org"></div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== RESPONDENT'S NAME ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2">
+                            <i class="fas fa-user-tag"></i> Additional Information
+                        </h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <!-- Is the Victim a UP Constituent? - Radio Group -->
+                            <div>
+                                <label class="form-label required-star">Is the Victim a UP Constituent?</label>
+                                <div class="flex flex-wrap gap-4 mt-1">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="victimConstituent" value="Yes" class="form-radio text-up focus:ring-up">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="victimConstituent" value="No" class="form-radio text-up focus:ring-up">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Is the Perpetiator a UP Constituent? - Radio Group -->
+                            <div>
+                                <label class="form-label required-star">Is the Perpetiator a UP Constituent?</label>
+                                <div class="flex flex-wrap gap-4 mt-1">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="complainedConstituent" value="Yes" class="form-radio text-up focus:ring-up">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="complainedConstituent" value="No" class="form-radio text-up focus:ring-up">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Did the incident happen inside campus premises? - Radio Group -->
+                            <div>
+                                <label class="form-label required-star">Did the incident happen inside campus premises?</label>
+                                <div class="flex flex-wrap gap-4 mt-1">
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="complainedInsideCampus" value="Yes" class="form-radio text-up focus:ring-up">
+                                        <span>Yes</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-2 cursor-pointer">
+                                        <input type="radio" name="complainedInsideCampus" value="No" class="form-radio text-up focus:ring-up">
+                                        <span>No</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="form-label required-star">Relationship with the Respondent</label>
+                                <select class="form-select" id="relationshipType" required>
+                                    <option value="">Select relationship type</option>
+                                    <option value="classmate">Classmate</option>
+                                    <option value="orgmate">Organization Mate</option>
+                                    <option value="stranger">Stranger</option>
+                                    <option value="intimate">Intimate Relationship</option>
+                                    <option value="dating">Dating Relationship</option>
+                                    <option value="family">Family Member</option>
+                                    <option value="same-level">Same Level/Co-worker</option>
+                                    <option value="authority">With Authority/Moral Ascendancy</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== COMPLAINANT'S STORY ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2"><i class="fas fa-pen-to-square"></i> Complainant's story</h3>
+                        <div class="space-y-5">
+                            <div><label class="form-label required-star">Describe in detail the incident</label><textarea id="complainantStory" rows="4" class="form-textarea" placeholder="What happened? Include date, time, location, witnesses..."></textarea></div>
+                            <div><label class="form-label required-star">Is there an event when the incident happened?</label><input type="text" id="complainedIncidentHappened" class="form-input" placeholder="e.g., February Fair, Loyalty Day, Parade, none"></div>
+                            <div><label class="form-label required-star">If stranger/unknown, describe physical appearance of the perpetrator/harasser</label><textarea id="complainedPhysicalAppearance" rows="2" class="form-textarea" placeholder="Height, build, clothing, distinguishing features..."></textarea></div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== OPTIONS TO PROCEED ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2"><i class="fas fa-scale-balanced"></i> Options to proceed with the complaint</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="form-label required-star">Options to proceed with the complainant</label>
+                                <select id="procedureType" class="form-select">
+                                    <option value="">Select</option>
+                                    <option>Formal procedure</option>
+                                    <option>Informal procedure</option>
+                                    <option>Undecided / need guidance</option>
+                                </select>
+                            </div>
+                            <div><label class="form-label">Remarks</label><input type="text" id="remarks" class="form-input" placeholder="Any additional remarks about procedure"></div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== WHERE DID YOU HEAR ABOUT OASH ========== -->
+                        <h3 class="text-lg font-semibold text-up mb-4 flex items-center gap-2"><i class="fas fa-bullhorn"></i> Where did you hear about OASH?</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                            <div>
+                                <label class="form-label required-star">Please help us understand how you found out</label>
+                                <select id="whereDidYouHearAboutUs" class="form-select">
+                                    <option value="">Select</option>
+                                    <option>Student orientation</option>
+                                    <option>Flyers / leaflets / ads</option>
+                                    <option>Word of mouth</option>
+                                    <option>Social media</option>
+                                    <option>OASH caravan</option>
+                                    <option>Others:</option>
+                                </select>
+                            </div>
+                            <div><label class="form-label">If others, please specify</label><input type="text" id="otherWhereDidYouHearAboutUs" class="form-input" placeholder="e.g., professor, friend"></div>
+                        </div>
+
+                        <hr class="section-divider">
+
+                        <!-- ========== FINAL CONSENT & CONFIRMATION ========== -->
+                        <div class="space-y-4 bg-[#FDF8F8] p-5 rounded-lg border border-[#F0E4E4]">
+                            <label class="flex items-start gap-3">
+                                <input type="checkbox" id="confirmAccuracy" class="mt-1 accent-up">
+                                <span class="text-sm text-[#2A2424]">I confirm that the information provided is accurate to the best of my knowledge.</span>
+                            </label>
+                            <label class="flex items-start gap-3">
+                                <input type="checkbox" id="confirmConfidentiality" class="mt-1 accent-up">
+                                <span class="text-sm text-[#2A2424]">I understand that this report will be handled confidentially and that OASH will contact me if I provided contact information.</span>
+                            </label>
+                        </div>
+
+                        <!-- Form buttons -->
+                        <div class="mt-8 flex flex-wrap gap-3 justify-end border-t border-[#EDE4E4] pt-6">
+                            <button type="button" id="saveDraftBtn" class="btn-outline-up px-5 py-2 text-sm"><i class="far fa-save mr-1"></i> Save draft</button>
+                            <button type="submit" id="submitReportBtn" class="btn-up px-6 py-2 text-sm flex items-center gap-2"><i class="fas fa-paper-plane"></i> Submit report</button>
+                        </div>
+                    </form>
+
+                    <!-- Emergency contact -->
+                    <div class="mt-6 text-xs text-[#A18686] p-3 bg-[#FDF8F8] rounded-lg border border-[#F0E4E4]">
+                        <i class="fas fa-phone-alt mr-1 text-up"></i> If this is an emergency or you need immediate assistance, please call UPLB OASH: <span class="font-medium">(049) 536 6701</span> or the university hotline.
+                    </div>
+                </div>
+
+                <!-- Contact card -->
+                <div class="mt-6 bg-white border border-[#EDE4E4] rounded-lg p-4 max-w-md">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-headset text-up text-xl"></i>
+                        <div>
+                            <h3 class="font-medium text-[#2A2424]">Office of Student Counselling</h3>
+                            <p class="text-sm text-[#8F7E7E] mt-1">+63 49 501 1844 · oash.uplb@up.edu.ph</p>
+                            <p class="text-xs text-[#A18686] mt-1">Mezzanine, Graduate School Bldg., International House Complex, UPLB, Los Baños, Laguna</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- mobile spacer -->
+    <div class="md:hidden h-16"></div>
+
+    <script src="js/roleValidator.js"></script>
+    <script src="js/report.js"></script>
+    <script src="js/map-law.js"></script>
+    <script src="js/me.js"></script>
+</body>
+</html>

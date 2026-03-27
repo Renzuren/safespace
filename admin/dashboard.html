@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>UPLB Oash — admin dashboard</title>
+    <!-- Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Physics Toast -->
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="../animation/physics-toast.min.css">
+    <script src="../animation/physics-toast.min.js"></script>
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    },
+                    colors: {
+                        up: {
+                            DEFAULT: '#6F1A1F',
+                            light: '#8E3A3F',
+                            dark: '#510E12',
+                            muted: '#F1E4E5',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+    <!-- main layout -->
+    <div class="flex min-h-screen w-full overflow-x-hidden">
+        <!-- desktop sidebar -->
+        <aside class="hidden md:block w-64 bg-white border-r border-[#EDE4E4] fixed h-screen overflow-y-auto z-20">
+            <div class="p-5 flex flex-col h-full">
+                <!-- logo -->
+                <div class="flex items-center gap-2.5 mb-6 pb-4 border-b border-[#EDE4E4]">
+                    <div class="w-8 h-8 rounded-md bg-up flex items-center justify-center">
+                        <i class="fas fa-shield-alt text-white text-sm"></i>
+                    </div>
+                    <span class="font-semibold text-[#6F1A1F] text-lg tracking-tight">UPLB Oash</span>
+                </div>
+
+                <!-- desktop nav -->
+                <nav class="flex-1 space-y-1">
+                    <a href="/admin/dashboard.html" class="sidebar-link active">
+                        <i class="fas fa-chart-pie"></i> Dashboard
+                    </a>
+                    <a href="/admin/appointments.html" class="sidebar-link">
+                        <i class="fas fa-calendar-check"></i> Appointments
+                    </a>
+                    <a href="/admin/reports.html" class="sidebar-link">
+                        <i class="fas fa-flag"></i> Reports
+                    </a>
+                    <a href="/admin/users.html" class="sidebar-link">
+                        <i class="fas fa-users"></i> Users
+                    </a>
+                    <a href="/admin/my-account.html" class="sidebar-link">
+                        <i class="fas fa-user-circle"></i> My account
+                    </a>
+                </nav>
+
+                <!-- desktop logout -->
+                <div class="pt-4 mt-auto border-t border-[#EDE4E4]">
+                    <div class="px-1 pb-2">
+                        <div class="text-xs text-[#8F7E7E]">Logged in as</div>
+                        <div class="text-sm font-medium truncate" id="sidebarFullName">Admin</div>
+                        <div class="text-xs text-[#8F7E7E] truncate" id="sidebarEmail">admin@up.edu.ph</div>
+                    </div>
+                    <a href="#" id="logoutBtn" class="sidebar-link w-full text-[#B02B2B] hover:bg-red-50 hover:text-red-700">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MOBILE BOTTOM NAV -->
+        <div class="mobile-bottom-nav md:hidden">
+            <a href="/admin/dashboard.html" class="mobile-nav-item active">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/appointments.html" class="mobile-nav-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Appts</span>
+            </a>
+            <a href="/admin/reports.html" class="mobile-nav-item">
+                <i class="fas fa-flag"></i>
+                <span>Reports</span>
+            </a>
+            <a href="/admin/users.html" class="mobile-nav-item">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+            <a href="/admin/my-account.html" class="mobile-nav-item">
+                <i class="fas fa-user-circle"></i>
+                <span>Account</span>
+            </a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 md:ml-64 p-4 md:p-8 w-full max-w-full overflow-x-hidden">
+            <div class="max-w-7xl mx-auto w-full">
+                <!-- header -->
+                <div class="mb-6">
+                    <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-[#2A2424]">Admin dashboard</h1>
+                    <p class="text-[#655A5A] text-sm mt-1">Key metrics and monitoring for OASH</p>
+                </div>
+
+                <!-- STATS CARDS - loading state -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6" id="statsContainer">
+                    <div class="stat-card text-center py-8">
+                        <div class="loading-spinner mx-auto mb-3"></div>
+                        <p class="text-xs text-[#8F7E7E]">Loading stats...</p>
+                    </div>
+                </div>
+
+                <!-- CHARTS SECTION -->
+                <div class="grid lg:grid-cols-2 gap-4 md:gap-6 mb-6">
+                    <!-- Line chart card -->
+                    <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-4 md:p-5 w-full overflow-hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-semibold text-[#2A2424] flex items-center gap-2 text-sm md:text-base">
+                                <i class="fas fa-chart-line text-up"></i> Reports filed (weekly)
+                            </h2>
+                            <span class="text-xs bg-up-muted text-up px-3 py-1 rounded-full whitespace-nowrap">last 6 weeks</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-container" style="min-width: 300px;">
+                                <canvas id="reportsLineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bar chart card -->
+                    <div class="bg-white rounded-xl border border-[#EDE4E4] shadow-card p-4 md:p-5 w-full overflow-hidden">
+                        <div class="flex items-center justify-between mb-3">
+                            <h2 class="font-semibold text-[#2A2424] flex items-center gap-2 text-sm md:text-base">
+                                <i class="fas fa-chart-bar text-up"></i> Appointments by mode
+                            </h2>
+                            <span class="text-xs bg-up-muted text-up px-3 py-1 rounded-full whitespace-nowrap">all time</span>
+                        </div>
+                        <div class="chart-wrapper">
+                            <div class="chart-container" style="min-width: 300px;">
+                                <canvas id="appointmentsBarChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
