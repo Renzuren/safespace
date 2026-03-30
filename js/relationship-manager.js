@@ -6,6 +6,7 @@
     const STUDENT_OPTIONS = [
         { value: "classmate", text: "Classmate" },
         { value: "orgmate", text: "Organization Mate" },
+        { value: "student_to_faculty", text: "Student to faculty/staff" },   // new
         { value: "stranger", text: "Stranger" },
         { value: "intimate", text: "Within intimate, dating, marital, family relationship, or former intimate relationship" },
         { value: "authority", text: "With authority, influence, or moral ascendancy over victim" }
@@ -14,6 +15,7 @@
     // Relationship options for Non-Student victims
     const NON_STUDENT_OPTIONS = [
         { value: "same-level", text: "Same level / Colleague" },
+        { value: "staff_to_supervisor", text: "Staff to immediate supervisor/boss" },   // new
         { value: "authority", text: "With authority, influence, or moral ascendancy over victim" },
         { value: "intimate", text: "Within intimate, dating, marital, family relationship, or former intimate relationship" },
         { value: "none", text: "No specific relationship" },

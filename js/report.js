@@ -2,6 +2,9 @@
 (function() {
     'use strict';
 
+    // Store AI result to reuse when form fields change
+    let currentAiResult = null;
+
     // Mobile menu toggle
     const menuBtn = document.getElementById('menuBtn');
     const mobileMenu = document.getElementById('mobileMenu');
@@ -142,15 +145,21 @@
         // Add severity badge
         addSeverityBadge(severityLabel, severityConfidence);
         
-        // Map laws based on form data and classification
-        mapLawsBasedOnContext();
+        // Store AI result for later use
+        currentAiResult = {
+            category: offenseLabel,
+            severity: severityLabel
+        };
+        
+        // Map laws with the AI result
+        mapLawsWithAI();
     }
 
-    // Map laws using the LawMapper module
-    function mapLawsBasedOnContext() {
-        if (window.LawMapper && window.LawMapper.analyzeAndDisplayLaws) {
-            window.LawMapper.analyzeAndDisplayLaws();
-        } else {
+    // Map laws using the stored AI result
+    function mapLawsWithAI() {
+        if (window.LawMapper && window.LawMapper.analyzeAndDisplayLaws && currentAiResult) {
+            window.LawMapper.analyzeAndDisplayLaws(currentAiResult);
+        } else if (!window.LawMapper) {
             console.warn('LawMapper not loaded yet');
         }
     }
@@ -327,10 +336,12 @@
         const victimSelect = document.getElementById('victimClass');
         const perpSelect = document.getElementById('perpClass');
         const relationshipSelect = document.getElementById('relationship');
+        const locationSelect = document.getElementById('incidentLocation');
         
         if (victimSelect) victimSelect.value = '';
         if (perpSelect) perpSelect.value = '';
         if (relationshipSelect) relationshipSelect.value = '';
+        if (locationSelect) locationSelect.value = '';
         
         // Remove severity badge if exists
         const severityBadge = document.getElementById('severityBadge');
@@ -343,33 +354,35 @@
         if (lawsContainer) {
             lawsContainer.innerHTML = '<!-- Laws will be populated here -->';
         }
+        
+        // Clear stored AI result
+        currentAiResult = null;
     });
 
     // Listen for relationship options updates to re-map laws if needed
     document.addEventListener('relationshipOptionsUpdated', function() {
-        // If result panel is visible, re-map laws with updated options
         const resultPanel = document.getElementById('resultPanel');
-        if (resultPanel && !resultPanel.classList.contains('hidden')) {
-            mapLawsBasedOnContext();
+        if (resultPanel && !resultPanel.classList.contains('hidden') && currentAiResult) {
+            mapLawsWithAI();
         }
     });
     
     document.addEventListener('complainedOptionsUpdated', function() {
         const resultPanel = document.getElementById('resultPanel');
-        if (resultPanel && !resultPanel.classList.contains('hidden')) {
-            mapLawsBasedOnContext();
+        if (resultPanel && !resultPanel.classList.contains('hidden') && currentAiResult) {
+            mapLawsWithAI();
         }
     });
     
     // Also listen for changes to form fields to update laws dynamically
-    const formFields = ['victimClass', 'perpClass', 'relationship'];
+    const formFields = ['victimClass', 'perpClass', 'relationship', 'incidentLocation'];
     formFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
         if (field) {
             field.addEventListener('change', function() {
                 const resultPanel = document.getElementById('resultPanel');
-                if (resultPanel && !resultPanel.classList.contains('hidden')) {
-                    mapLawsBasedOnContext();
+                if (resultPanel && !resultPanel.classList.contains('hidden') && currentAiResult) {
+                    mapLawsWithAI();
                 }
             });
         }
@@ -382,8 +395,8 @@
     victimRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             const resultPanel = document.getElementById('resultPanel');
-            if (resultPanel && !resultPanel.classList.contains('hidden')) {
-                mapLawsBasedOnContext();
+            if (resultPanel && !resultPanel.classList.contains('hidden') && currentAiResult) {
+                mapLawsWithAI();
             }
         });
     });
@@ -391,8 +404,8 @@
     perpRadios.forEach(radio => {
         radio.addEventListener('change', function() {
             const resultPanel = document.getElementById('resultPanel');
-            if (resultPanel && !resultPanel.classList.contains('hidden')) {
-                mapLawsBasedOnContext();
+            if (resultPanel && !resultPanel.classList.contains('hidden') && currentAiResult) {
+                mapLawsWithAI();
             }
         });
     });
