@@ -151,7 +151,10 @@ function collectFormData() {
         procedureType: document.getElementById('procedureType').value,
         remarks: document.getElementById('remarks').value.trim(),
         whereDidYouHearAboutUs: document.getElementById('whereDidYouHearAboutUs').value,
-        otherWhereDidYouHearAboutUs: document.getElementById('otherWhereDidYouHearAboutUs').value.trim()
+        otherWhereDidYouHearAboutUs: document.getElementById('otherWhereDidYouHearAboutUs').value.trim(),
+        // New fields for incident date/time
+        incidentDate: document.getElementById('incidentDate').value,
+        incidentTime: document.getElementById('incidentTime').value
     };
 }
 
@@ -164,6 +167,7 @@ function validateForm(data) {
         'complainedConstituent', 'complainedInsideCampus', 'relationshipType',
         'complainantStory', 'complainedIncidentHappened', 'complainedPhysicalAppearance', 
         'procedureType', 'whereDidYouHearAboutUs'
+        // Optional: add 'incidentDate', 'incidentTime' if they are required
     ];
     
     for (let field of required) {
@@ -352,6 +356,15 @@ function loadDraft() {
                 }
             }
         });
+        
+        // Explicitly set incident date/time (already covered by the loop if IDs match)
+        // But ensure they are set:
+        if (document.getElementById('incidentDate') && formData.incidentDate) {
+            document.getElementById('incidentDate').value = formData.incidentDate;
+        }
+        if (document.getElementById('incidentTime') && formData.incidentTime) {
+            document.getElementById('incidentTime').value = formData.incidentTime;
+        }
         
         updateApplicableLaws();
         toast.info('Draft loaded', 'Your saved draft has been loaded.');

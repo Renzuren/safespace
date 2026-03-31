@@ -188,6 +188,27 @@ window.viewReportDetails = function(report) {
     const modal = document.getElementById('reportModal');
     const modalContent = document.getElementById('modalContent');
     
+    // Helper to format date (YYYY-MM-DD) to readable
+    function formatIncidentDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return dateStr;
+        return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+    
+    // Helper to format time (HH:MM:SS or HH:MM)
+    function formatIncidentTime(timeStr) {
+        if (!timeStr) return 'N/A';
+        // Accept formats like "14:30" or "14:30:00"
+        const parts = timeStr.split(':');
+        if (parts.length < 2) return timeStr;
+        let hour = parseInt(parts[0], 10);
+        const minute = parts[1];
+        const ampm = hour >= 12 ? 'PM' : 'AM';
+        hour = hour % 12 || 12;
+        return `${hour}:${minute} ${ampm}`;
+    }
+    
     modalContent.innerHTML = `
         <div class="max-h-[75vh] overflow-y-auto p-5">
             <!-- Status and ID Row -->
@@ -278,6 +299,16 @@ window.viewReportDetails = function(report) {
                     <div class="w-2/5 text-xs text-gray-500 font-medium">Inside Campus Premises?</div>
                     <div class="w-3/5 text-sm text-gray-800">${report.complainedInsideCampus || 'N/A'}</div>
                 </div>
+                <!-- NEW: Incident Date & Time -->
+                <div class="flex py-2 border-b border-gray-100">
+                    <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Date</div>
+                    <div class="w-3/5 text-sm text-gray-800">${formatIncidentDate(report.incidentDate)}</div>
+                </div>
+                <div class="flex py-2 border-b border-gray-100">
+                    <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Time</div>
+                    <div class="w-3/5 text-sm text-gray-800">${formatIncidentTime(report.incidentTime)}</div>
+                </div>
+                <!-- End NEW -->
                 <div class="flex py-2 border-b border-gray-100">
                     <div class="w-2/5 text-xs text-gray-500 font-medium">Procedure Type</div>
                     <div class="w-3/5 text-sm text-gray-800">${report.procedureType || 'N/A'}</div>
@@ -290,6 +321,16 @@ window.viewReportDetails = function(report) {
                     <div class="w-2/5 text-xs text-gray-500 font-medium">Other Source</div>
                     <div class="w-3/5 text-sm text-gray-800">${report.otherWhereDidYouHearAboutUs || 'N/A'}</div>
                 </div>
+                <!-- NEW: Predicted Offense & Severity -->
+                <div class="flex py-2 border-b border-gray-100">
+                    <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Offense</div>
+                    <div class="w-3/5 text-sm text-gray-800">${report.predictedOffense || 'N/A'}</div>
+                </div>
+                <div class="flex py-2 border-b border-gray-100">
+                    <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Severity</div>
+                    <div class="w-3/5 text-sm text-gray-800">${report.predictedSeverity || 'N/A'}</div>
+                </div>
+                <!-- End NEW -->
                 <div class="flex py-2 border-b border-gray-100">
                     <div class="w-2/5 text-xs text-gray-500 font-medium">Applicable Laws</div>
                     <div class="w-3/5 text-sm text-gray-800">${report.applicableLaws || 'N/A'}</div>
@@ -603,6 +644,15 @@ window.downloadPDF = function () {
             doc.querySelector('textarea[name="story"]').value = story;
         }
         
+        // ---------- ADDED: Populate incident date and time ----------
+        if (doc.querySelector('input[name="incidentDate"]')) {
+            doc.querySelector('input[name="incidentDate"]').value = reportData['Date of incident'] || '';
+        }
+        if (doc.querySelector('input[name="incidentTime"]')) {
+            doc.querySelector('input[name="incidentTime"]').value = reportData['Time of incident'] || '';
+        }
+        // ------------------------------------------------------------
+        
         const procedure = reportData['Procedure Type']?.toLowerCase();
         if (procedure) {
             if (doc.querySelector('input[name="proceed"][value="yes"]')) {
@@ -805,12 +855,9 @@ function getFormHTML() {
             </div>
         </div>
 
-        <div class="form-row">
-            <div class="form-col form-group"><label>Date:</label><input type="text" name="date"></div>
-            <div class="form-col form-group"><label>Time:</label><input type="text" name="time"></div>
-        </div>
-
-        <div class="section-title">A. PERSONAL INFORMATION</div>
+        <div  style="font-size: 13px; font-weight: bold; margin-top: 20px; margin-bottom: 15px; padding-top: 10px; border-top: none;">
+    A. PERSONAL INFORMATION
+</div>
         <div class="form-group"><label>1. Full name of Complainant:</label><input type="text" name="fullName"></div>
         <div class="form-row">
             <div class="form-col form-group"><label>2. Age:</label><input type="text" name="age"></div>
@@ -866,9 +913,20 @@ function getFormHTML() {
 
         <div class="section-title">C. COMPLAINANT'S STORY</div>
         <p style="font-size: 11px; margin-bottom: 8px;">Describe in detail the incident that happened, including the name(s) of the alleged perpetrator(s), dates, etc.</p>
-        <div class="form-group"><textarea name="story" style="min-height: 120px;"></textarea></div>
+        <div class="form-group"><textarea name="story" style="min-height: 130px;"></textarea></div>
         <div class="guidelines"><strong>Guidelines:</strong> Include who was involved, what specific behavior occurred, when it happened, where it occurred, why it may have happened, and how you responded.</div>
 
+        <div class="form-row">
+            <div class="form-col form-group">
+                <label>Date of incident:</label>
+                <input type="date" name="incidentDate" style="border: none; border-bottom: 1px solid #333; padding: 4px 0; font-size: 11px; font-family: Arial, sans-serif; background: transparent; width: 100%;">
+            </div>
+            <div class="form-col form-group">
+                <label>Time of incident:</label>
+                <input type="time" name="incidentTime" style="border: none; border-bottom: 1px solid #333; padding: 4px 0; font-size: 11px; font-family: Arial, sans-serif; background: transparent; width: 100%;">
+            </div>
+        </div>
+        
         <div class="section-title">D. Options to proceed with the complaint:</div>
         <div class="form-group"><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" name="proceed" value="yes" onchange="toggleProcedure()"><label>Yes</label></div><div class="checkbox-item"><input type="checkbox" name="proceed" value="no" onchange="toggleProcedure()"><label>No</label></div></div></div>
         <div id="procedureSection" class="hidden-section sub-section"><label>If yes, select procedure:</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" name="procedure" value="formal"><label>Formal procedure</label></div><div class="checkbox-item"><input type="checkbox" name="procedure" value="informal"><label>Informal procedure</label></div></div></div>
