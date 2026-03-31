@@ -407,6 +407,58 @@ window.downloadPDF = function () {
     const status = modalContent.querySelector('.rounded-full.text-xs')?.innerText;
     if (status) reportData['Status'] = status;
     
+    // ========== ADD MISSING FIELDS ==========
+    // Classification (might not be in flex rows)
+    const classificationRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Classification'
+    );
+    if (classificationRow) {
+        reportData['Classification'] = classificationRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Department/Unit
+    const deptRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Department/Unit'
+    );
+    if (deptRow) {
+        reportData['Department/Unit'] = deptRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Victim is UP Constituent?
+    const victimConstRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Victim is UP Constituent?'
+    );
+    if (victimConstRow) {
+        reportData['Is the Victim a UP Constituent?'] = victimConstRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Perpetrator is UP Constituent?
+    const perpConstRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Perpetrator is UP Constituent?'
+    );
+    if (perpConstRow) {
+        reportData['Is the Perpetiator a UP Constituent?'] = perpConstRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Incident inside campus?
+    const campusRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Inside Campus Premises?'
+    );
+    if (campusRow) {
+        reportData['Did the incident happen inside campus premises?'] = campusRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Relationship with Respondent (might be separate)
+    const relRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Relationship with Respondent'
+    );
+    if (relRow) {
+        reportData['Relationship with Respondent'] = relRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // Procedure Type (already captured in flex rows, but ensure)
+    // Where did you hear about us? (already captured)
+    
     // Get date from the fields (it's already in the data)
     // Date Reported and Last Updated are already in the fields
 
@@ -475,9 +527,21 @@ window.downloadPDF = function () {
             doc.querySelector('input[name="landline"]').value = reportData['Landline Number'] || '';
         }
         
-        const classification = reportData['Classification']?.toLowerCase();
-        if (classification && doc.querySelector(`input[name="classification"][value="${classification}"]`)) {
-            doc.querySelector(`input[name="classification"][value="${classification}"]`).checked = true;
+        // Handle classification checkboxes (Student, Faculty, REPS, Admin, ICS, Non-UP)
+        const classificationValue = reportData['Classification']?.toLowerCase();
+        if (classificationValue) {
+            const classMap = {
+                'student': 'student',
+                'faculty': 'faculty',
+                'reps': 'reps',
+                'admin': 'admin',
+                'ics': 'ics',
+                'non-up': 'nonup'
+            };
+            const mappedClass = classMap[classificationValue];
+            if (mappedClass && doc.querySelector(`input[name="classification"][value="${mappedClass}"]`)) {
+                doc.querySelector(`input[name="classification"][value="${mappedClass}"]`).checked = true;
+            }
         }
         
         if (doc.querySelector('input[name="college"]')) {
@@ -499,8 +563,19 @@ window.downloadPDF = function () {
         }
         
         const respClass = reportData['Respondent Classification']?.toLowerCase();
-        if (respClass && doc.querySelector(`input[name="respClassification"][value="${respClass}"]`)) {
-            doc.querySelector(`input[name="respClassification"][value="${respClass}"]`).checked = true;
+        if (respClass) {
+            const respClassMap = {
+                'student': 'student',
+                'faculty': 'faculty',
+                'reps': 'reps',
+                'admin': 'admin',
+                'ics': 'ics',
+                'non-up': 'nonup'
+            };
+            const mappedRespClass = respClassMap[respClass];
+            if (mappedRespClass && doc.querySelector(`input[name="respClassification"][value="${mappedRespClass}"]`)) {
+                doc.querySelector(`input[name="respClassification"][value="${mappedRespClass}"]`).checked = true;
+            }
         }
         
         if (doc.querySelector('input[name="respCollege"]')) {
@@ -509,6 +584,8 @@ window.downloadPDF = function () {
         if (doc.querySelector('input[name="respDepartment"]')) {
             doc.querySelector('input[name="respDepartment"]').value = reportData['Respondent Department'] || '';
         }
+        
+        // Set the three constituent/campus fields (text inputs in the form)
         if (doc.querySelector('input[name="respVictimConstituent"]')) {
             doc.querySelector('input[name="respVictimConstituent"]').value = reportData['Is the Victim a UP Constituent?'] || '';
         }
