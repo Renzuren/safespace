@@ -184,229 +184,239 @@ window.changePage = function(newPage) {
     fetchReports(newPage);
 };
 
-window.viewReportDetails = function(report) {
+window.viewReportDetails = async function(report) {
     const modal = document.getElementById('reportModal');
     const modalContent = document.getElementById('modalContent');
     
-    // Helper to format date (YYYY-MM-DD) to readable
-    function formatIncidentDate(dateStr) {
-        if (!dateStr) return 'N/A';
-        const date = new Date(dateStr);
-        if (isNaN(date.getTime())) return dateStr;
-        return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-    }
+    // Show loading state
+    modalContent.innerHTML = '<div class="p-5 text-center">Loading report details...</div>';
+    modal.classList.add('active');
     
-    // Helper to format time (HH:MM:SS or HH:MM)
-    function formatIncidentTime(timeStr) {
-        if (!timeStr) return 'N/A';
-        // Accept formats like "14:30" or "14:30:00"
-        const parts = timeStr.split(':');
-        if (parts.length < 2) return timeStr;
-        let hour = parseInt(parts[0], 10);
-        const minute = parts[1];
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        hour = hour % 12 || 12;
-        return `${hour}:${minute} ${ampm}`;
-    }
-    
-    modalContent.innerHTML = `
-        <div class="max-h-[75vh] overflow-y-auto p-5">
-            <!-- Status and ID Row -->
-            <div class="flex flex-wrap justify-between items-center gap-3 pb-4 mb-4 border-b border-gray-200">
-                <span class="text-xs text-gray-500 font-mono">ID: ${report.reportId || 'N/A'}</span>
-                <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(report.status)}">${getStatusText(report.status)}</span>
-            </div>
-            
-            <!-- All Fields in Simple Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-1 gap-x-6 gap-y-3">
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Full Name</div>
-                    <div class="w-3/5 text-sm text-gray-800">${getFullName(report)}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Age</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.age || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Biological Sex</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.biologicalSex || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Identified As</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.identifiedAs || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Civil Status</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.civilStatus || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Mobile Number</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.mobileNumber || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Landline Number</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.landLineNumber || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Present Address</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.presentAddress || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Permanent Address</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.permanentAddress || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Classification</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.classification || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">College</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.college || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Department/Unit</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.department || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Full Name</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedFullName || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Sex</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedSex || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Classification</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedClassification || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent College</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedCollege || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Department</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedDepartment || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Victim is UP Constituent?</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.victimConstituent || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Perpetrator is UP Constituent?</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedConstituent || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Inside Campus Premises?</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.complainedInsideCampus || 'N/A'}</div>
-                </div>
-                <!-- NEW: Incident Date & Time -->
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Date</div>
-                    <div class="w-3/5 text-sm text-gray-800">${formatIncidentDate(report.incidentDate)}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Time</div>
-                    <div class="w-3/5 text-sm text-gray-800">${formatIncidentTime(report.incidentTime)}</div>
-                </div>
-                <!-- End NEW -->
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Procedure Type</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.procedureType || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Where did you hear about us?</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.whereDidYouHearAboutUs || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Other Source</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.otherWhereDidYouHearAboutUs || 'N/A'}</div>
-                </div>
-                <!-- NEW: Predicted Offense & Severity -->
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Offense</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.predictedOffense || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Severity</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.predictedSeverity || 'N/A'}</div>
-                </div>
-                <!-- End NEW -->
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Applicable Laws</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.applicableLaws || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Offense Level</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.offenseLevel || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Penalty</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.recommendedSanction || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Remarks</div>
-                    <div class="w-3/5 text-sm text-gray-800">${report.remarks || 'N/A'}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Date Reported</div>
-                    <div class="w-3/5 text-sm text-gray-800">${formatDate(report.createdAt)}</div>
-                </div>
-                <div class="flex py-2 border-b border-gray-100">
-                    <div class="w-2/5 text-xs text-gray-500 font-medium">Last Updated</div>
-                    <div class="w-3/5 text-sm text-gray-800">${formatDate(report.updatedAt)}</div>
-                </div>
-            </div>
-            
-            <!-- Long Text Fields (Full Width) -->
-            <div class="mt-6 space-y-4">
-                <div>
-                    <div class="text-xs text-gray-500 font-medium mb-2">Incident Details</div>
-                    <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${report.complainantStory || 'N/A'}</div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500 font-medium mb-2">Incident Event</div>
-                    <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${report.complainedIncidentHappened || 'N/A'}</div>
-                </div>
-                <div>
-                    <div class="text-xs text-gray-500 font-medium mb-2">Physical Appearance</div>
-                    <div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${report.complainedPhysicalAppearance || 'N/A'}</div>
-                </div>
-            </div>
-        </div>
-        <div id="applicableLawsContainer"></div>
-    `;
-    
-    // Display applicable laws using LawMapper
-    if (typeof LawMapper !== 'undefined') {
-        const lawMapperData = {
-            victimClassification: report.classification || '',
-            complainedClassification: report.complainedClassification || '',
-            victimConstituent: report.victimConstituent || 'No',
-            complainedConstituent: report.complainedConstituent || 'No',
-            relationshipType: report.relationshipType || 'none'
-        };
+    try {
+        const token = getAuthToken();
+        // Fetch all reports (limit set high enough to include the one we need)
+        const response = await fetch(`https://safespace-back.onrender.com/api/v1/user/reports?limit=100`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
         
-        const result = LawMapper.determineApplicableLaws(lawMapperData);
-        LawMapper.displayApplicableLaws(result.applicableLaws, result.externalAssistance);
-    } else {
-        const lawsContainer = document.getElementById('applicableLawsContainer');
-        if (lawsContainer) {
-            lawsContainer.innerHTML = `
-                <div class="p-5 border-t border-gray-200">
-                    <div class="bg-blue-50 rounded-lg p-4">
-                        <div class="flex items-start gap-3">
-                            <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
-                            <div class="flex-1">
-                                <p class="text-sm text-gray-700">Need assistance? Contact OASH: (049) 501-1844 | oash.uplb@up.edu.ph</p>
+        // Find the specific report by ID
+        const freshReport = data.data.find(r => r.reportId === report.reportId);
+        if (!freshReport) {
+            throw new Error('Report not found in the list');
+        }
+        
+        // Store globally for PDF or other uses
+        window.currentReport = freshReport;
+        
+        // Helper to format date (YYYY-MM-DD) to readable
+        function formatIncidentDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return dateStr;
+            return date.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+        }
+        
+        // Helper to format time (HH:MM)
+        function formatIncidentTime(timeStr) {
+            if (!timeStr) return 'N/A';
+            const parts = timeStr.split(':');
+            if (parts.length < 2) return timeStr;
+            let hour = parseInt(parts[0], 10);
+            const minute = parts[1];
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            hour = hour % 12 || 12;
+            return `${hour}:${minute} ${ampm}`;
+        }
+        
+        modalContent.innerHTML = `
+            <div class="max-h-[75vh] overflow-y-auto p-5">
+                <!-- Status and ID Row -->
+                <div class="flex flex-wrap justify-between items-center gap-3 pb-4 mb-4 border-b border-gray-200">
+                    <span class="text-xs text-gray-500 font-mono">ID: ${freshReport.reportId || 'N/A'}</span>
+                    <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(freshReport.status)}">${getStatusText(freshReport.status)}</span>
+                </div>
+                
+                <!-- All Fields in Simple Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-1 gap-x-6 gap-y-3">
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Full Name</div>
+                        <div class="w-3/5 text-sm text-gray-800">${getFullName(freshReport)}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Age</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.age || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Biological Sex</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.biologicalSex || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Identified As</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.identifiedAs || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Civil Status</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.civilStatus || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Mobile Number</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.mobileNumber || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Landline Number</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.landLineNumber || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Present Address</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.presentAddress || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Permanent Address</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.permanentAddress || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Classification</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.classification || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">College</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.college || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Department/Unit</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.department || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Full Name</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedFullName || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Sex</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedSex || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Classification</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedClassification || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent College</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedCollege || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Respondent Department</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedDepartment || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Victim is UP Constituent?</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.victimConstituent || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Perpetrator is UP Constituent?</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedConstituent || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Inside Campus Premises?</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.complainedInsideCampus || 'N/A'}</div>
+                    </div>
+                    <!-- Incident Date & Time -->
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Date</div>
+                        <div class="w-3/5 text-sm text-gray-800">${formatIncidentDate(freshReport.incidentDate)}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Incident Time</div>
+                        <div class="w-3/5 text-sm text-gray-800">${formatIncidentTime(freshReport.incidentTime)}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Procedure Type</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.procedureType || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Where did you hear about us?</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.whereDidYouHearAboutUs || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Other Source</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.otherWhereDidYouHearAboutUs || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Offense</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.predictedOffense || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Predicted Severity</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.predictedSeverity || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Applicable Laws</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.applicableLaws || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Offense Level</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.offenseLevel || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Penalty</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.recommendedSanction || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Remarks</div>
+                        <div class="w-3/5 text-sm text-gray-800">${freshReport.remarks || 'N/A'}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Date Reported</div>
+                        <div class="w-3/5 text-sm text-gray-800">${formatDate(freshReport.createdAt)}</div>
+                    </div>
+                    <div class="flex py-2 border-b border-gray-100">
+                        <div class="w-2/5 text-xs text-gray-500 font-medium">Last Updated</div>
+                        <div class="w-3/5 text-sm text-gray-800">${formatDate(freshReport.updatedAt)}</div>
+                    </div>
+                </div>
+                
+                <!-- Long Text Fields -->
+                <div class="mt-6 space-y-4">
+                    <div><div class="text-xs text-gray-500 font-medium mb-2">Incident Details</div><div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${freshReport.complainantStory || 'N/A'}</div></div>
+                    <div><div class="text-xs text-gray-500 font-medium mb-2">Incident Event</div><div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${freshReport.complainedIncidentHappened || 'N/A'}</div></div>
+                    <div><div class="text-xs text-gray-500 font-medium mb-2">Physical Appearance</div><div class="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 whitespace-pre-wrap">${freshReport.complainedPhysicalAppearance || 'N/A'}</div></div>
+                </div>
+            </div>
+            <div id="applicableLawsContainer"></div>
+        `;
+        
+        // Display applicable laws using LawMapper
+        if (typeof LawMapper !== 'undefined') {
+            const lawMapperData = {
+                victimClassification: freshReport.classification || '',
+                complainedClassification: freshReport.complainedClassification || '',
+                victimConstituent: freshReport.victimConstituent || 'No',
+                complainedConstituent: freshReport.complainedConstituent || 'No',
+                relationshipType: freshReport.relationshipType || 'none'
+            };
+            const result = LawMapper.determineApplicableLaws(lawMapperData);
+            LawMapper.displayApplicableLaws(result.applicableLaws, result.externalAssistance);
+        } else {
+            const lawsContainer = document.getElementById('applicableLawsContainer');
+            if (lawsContainer) {
+                lawsContainer.innerHTML = `
+                    <div class="p-5 border-t border-gray-200">
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <div class="flex items-start gap-3">
+                                <i class="fas fa-info-circle text-blue-500 mt-0.5"></i>
+                                <div class="flex-1">
+                                    <p class="text-sm text-gray-700">Need assistance? Contact OASH: (049) 501-1844 | oash.uplb@up.edu.ph</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
         }
+        
+    } catch (error) {
+        console.error('Error fetching report details:', error);
+        modalContent.innerHTML = '<div class="p-5 text-center text-red-500">Failed to load report details.</div>';
     }
-    
-    modal.classList.add('active');
 };
 
 window.closeModal = function() {
@@ -495,6 +505,21 @@ window.downloadPDF = function () {
     );
     if (relRow) {
         reportData['Relationship with Respondent'] = relRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    // NEW: Extract Incident Date & Time from modal
+    const incidentDateRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Incident Date'
+    );
+    if (incidentDateRow) {
+        reportData['Date of incident'] = incidentDateRow.querySelector('.text-gray-800')?.innerText || '';
+    }
+    
+    const incidentTimeRow = Array.from(modalContent.querySelectorAll('.flex')).find(row => 
+        row.querySelector('.text-gray-500')?.innerText === 'Incident Time'
+    );
+    if (incidentTimeRow) {
+        reportData['Time of incident'] = incidentTimeRow.querySelector('.text-gray-800')?.innerText || '';
     }
     
     // Procedure Type (already captured in flex rows, but ensure)
