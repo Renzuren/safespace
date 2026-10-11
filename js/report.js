@@ -200,7 +200,7 @@
 
     // Call backend API
     async function callHarassmentAPI(description) {
-        const API_URL = 'http://127.0.0.1:8000/predict';
+        const API_URL = '/api/predict';
         
         const requestBody = {
             description: description
@@ -313,7 +313,7 @@
             
         } catch (error) {
             console.error('Classification error:', error);
-            showError(`Classification failed: ${error.message}. Make sure the backend server is running at http://127.0.0.1:8000/predict`);
+            showError(`Classification failed: ${error.message}. The AI prediction service may be offline`);
             resultPanel.classList.add('hidden');
         } finally {
             setLoading(false);
